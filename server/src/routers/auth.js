@@ -33,7 +33,7 @@ authRouter.post(
     requestHandler(async req => {
         const { email, password } = LoginInputSchema.parse(req.body)
 
-        await wait(2000)
+        // await wait(2000)
 
         const user = await userService.login(email, password)
         if (!user) {
@@ -46,12 +46,12 @@ authRouter.post(
     })
 )
 
-function wait(ms) {
-    return new Promise(resolve => {
-        setTimeout(() => {
-            resolve(undefined)
-        }, ms)
-    })
-}
+// function wait(ms) {
+//     return new Promise(resolve => {
+//         setTimeout(() => {
+//             resolve(undefined)
+//         }, ms)
+//     })
+// }
 
 export { authRouter }

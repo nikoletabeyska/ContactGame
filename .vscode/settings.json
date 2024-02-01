@@ -1,0 +1,14 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "contactGame",
+            "database": "contactGame",
+            "username": "postgres",
+            "password": "postgres12s12"
+        }
+    ]
+}

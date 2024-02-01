@@ -6,6 +6,7 @@ import { authRouter } from "./routers/auth.js"
 // import { userRouter } from "./routers/users"
 import { config } from "./config.js"
 import cors from "cors"
+console.log(555, process.env)
 
 const { knex } = pkg;
 const knexClient = knex(knexConfig.development)
@@ -14,9 +15,10 @@ Model.knex(knexClient)
 const app = express()
 const port = config.get("port")
 
+
 app.use(cors())
 
-app.use((req, next) => {
+app.use((req, res, next) => {
     console.log("Request received", {
         path: req.path,
         method: req.method,
