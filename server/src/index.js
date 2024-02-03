@@ -39,4 +39,6 @@ app.use("/auth", authRouter)
 
 app.listen(port)
 
+
+
 console.log("Server started on port", port)
