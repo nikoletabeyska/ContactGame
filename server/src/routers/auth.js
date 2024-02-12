@@ -32,26 +32,16 @@ authRouter.post(
     "/login",
     requestHandler(async req => {
         const { email, password } = LoginInputSchema.parse(req.body)
-
-        // await wait(2000)
-
-        const user = await userService.login(email, password)
-        if (!user) {
-            throw new NotFoundError("Email or password is incorrect!")
+        let user = null;
+        try {
+            user = await userService.login(email, password)
+        } catch (error) {
+            throw new NotFoundError(error.message)
         }
 
         const token = jwtService.create({ id: user.id, email: user.email })
-
         return { token: token, name: user.name }
     })
 )
-
-// function wait(ms) {
-//     return new Promise(resolve => {
-//         setTimeout(() => {
-//             resolve(undefined)
-//         }, ms)
-//     })
-// }
 
 export { authRouter }

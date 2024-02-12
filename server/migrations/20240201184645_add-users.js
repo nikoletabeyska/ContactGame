@@ -9,6 +9,7 @@ export async function up(knex) {
             table.integer("score").defaultTo(0)
         })
     }
+
 }
 
 export async function down(knex) {

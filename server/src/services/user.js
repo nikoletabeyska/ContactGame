@@ -2,6 +2,7 @@ import { UserModel } from "../models/user.js"
 import bcrypt from "bcrypt"
 import { z } from "zod"
 import { UniqueViolationError } from "objection"
+import { NotFoundError } from "../errors.js"
 import { EmailAlreadyExistsError } from "../errors.js"
 
 export const RegistrationInputSchema = z.object({
@@ -66,14 +67,15 @@ export class UserService {
 
     async login(email, password) {
         const user = await UserModel.query().findOne({ email })
+
         if (!user) {
-            return undefined
+            throw new NotFoundError("There is no user with this email!")
         }
 
         const correctPassword = await bcrypt.compare(password, user.password)
 
         if (!correctPassword) {
-            return undefined
+            throw new NotFoundError("There is no user with this email and password combination!")
         }
 
         return user

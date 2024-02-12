@@ -1,5 +1,5 @@
 import { config } from "../config"
-import { userInfoStorage } from "./userInfoStorage"
+import { sessionUserStorage } from "./session"
 
 export class HttpError extends Error {
     constructor(status, message) {
@@ -10,6 +10,7 @@ export class HttpError extends Error {
 export class UnauthorizedError extends HttpError { }
 
 export class EmailAlreadyExists extends HttpError { }
+export class NotFoundError extends HttpError { }
 
 export class InputError extends HttpError {
     constructor(status, message, formErrors, fieldErrors) {
@@ -41,14 +42,14 @@ export class HttpService {
     }
 
     async request(method, path, { body, query }) {
-        const authToken = userInfoStorage.token
+        //const authToken = userInfoStorage.token
+        const authToken = sessionUserStorage.token
 
         const queryString = new URLSearchParams(query).toString()
+        const baseUrl = config.serverBaseUrl.replace(/\/$/, "");
+        const fullPath = [baseUrl, path.replace(/^\//, ""), queryString].filter(Boolean).join("/");
         const response = await fetch(
-            `${config.serverBaseUrl.replace(/\/$/, "")}/${path.replace(
-                /^\//,
-                ""
-            )}?${queryString}`,
+            fullPath,
             {
                 method,
                 headers: {
@@ -65,7 +66,8 @@ export class HttpService {
             const message = body?.message ?? "Error: HTTP request failed."
 
             if (statusCode === 401) {
-                userInfoStorage.clear()
+                sessionUserStorage.clear();
+                //userInfoStorage.clear()
                 throw new UnauthorizedError(statusCode, message)
             }
 
@@ -80,6 +82,10 @@ export class HttpService {
 
             if (statusCode === 400 && message === "This email is already used!") {
                 throw new EmailAlreadyExists(statusCode, message)
+            }
+
+            if (statusCode === 404) {
+                throw new NotFoundError(statusCode, message);
             }
 
             throw new HttpError(statusCode, message)
