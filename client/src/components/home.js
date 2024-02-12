@@ -1,7 +1,8 @@
 import { render, html } from "lit-html";
 import { Router } from "@vaadin/router";
 import { sessionUserStorage } from "../services/session";
-import { GameService, socket } from "../services/game.js";
+import { GameService, socket } from "../services/game";
+import { authService } from "../services/auth.js";
 
 export class Home extends HTMLElement {
   static selector = "app-home";
@@ -92,6 +93,11 @@ export class Home extends HTMLElement {
     socket.emit('startGame', this.gameInfo.gameId);
   }
 
+  logout = () => {
+    authService.logout();
+    Router.go('/');
+  }
+
   static styles = `
         .game-info {
             border: 2px solid black;
@@ -124,6 +130,7 @@ export class Home extends HTMLElement {
         <h1>Welcome ${sessionUserStorage.name}!</h1>
           <button @click=${this.createGameHandler}>Create new game</button>
           <button @click=${this.toggleJoin}>Join game</button>
+          <button @click=${this.logout}>Log out</button>
           ${this.userState === 'owner' || this.userState === 'joined' ? html`
           <div class="game-info">
                 <p><strong>Game ID:</strong> ${this.gameInfo.gameId}</p>
@@ -157,6 +164,10 @@ export class Home extends HTMLElement {
   }
 
   render() {
+    if (sessionUserStorage.name === null) {
+      Router.go('/');
+      return;
+    }
     render(this.getTemplate(this), this.#shadowRoot);
   }
 }

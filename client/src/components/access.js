@@ -1,13 +1,5 @@
 import { html, render } from 'lit-html';
-import { Router } from "@vaadin/router";
-
-const navigateToLogin = () => {
-    Router.go('/auth/login');
-}
-
-const navigateToRegister = () => {
-    Router.go('/auth/register');
-}
+import { navigateToLogin } from './utils'
 
 export class Access extends HTMLElement {
     static selector = 'app-access'
@@ -23,8 +15,8 @@ export class Access extends HTMLElement {
         return html`
         <div>
             <h1>Contact game</h1>
+            <p>Please login to access the game.</p>
             <button @click=${navigateToLogin}>Login</button>
-            <button @click=${navigateToRegister}>Register</button>
         </div>`;
     }
 
