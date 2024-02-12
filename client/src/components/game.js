@@ -13,7 +13,7 @@ export class Game extends LitElement {
 
     constructor() {
         super();
-        this.playerRole = null; 
+        this.playerRole = null;
         this.gameWord = "";
         this.gameId = null;
         this.currentQuestion = "";
@@ -27,20 +27,19 @@ export class Game extends LitElement {
             } else {
                 this.playerRole = 'player';
             }
-            this.gameId = gameId; 
+            this.gameId = gameId;
         });
 
         socket.on('letterReveal', (letter) => {
             this.gameWord = this.gameWord + letter;
-           
+
         })
 
         socket.on('question', (question) => {
             this.currentQuestion = question;
         })
+    }
 
-    } 
-    
     handleWordSubmission = (event) => {
         event.preventDefault();
         this.gameWord = this.shadowRoot.getElementById('word').value;
@@ -82,8 +81,6 @@ export class Game extends LitElement {
                     <p ?hidden=${!(this.currentQuestion === "" && this.gameWord !== "")}>Waiting for players question</p> `}
 
             <p ?hidden=${(this.currentQuestion === "")}> Question: ${this.currentQuestion}</p>
-
-
         `;
     }
 }

@@ -1,5 +1,4 @@
 import { config } from "../config"
-import { userInfoStorage } from "./userInfoStorage"
 import { sessionUserStorage } from "./session"
 
 export class HttpError extends Error {
@@ -12,7 +11,6 @@ export class UnauthorizedError extends HttpError { }
 
 export class EmailAlreadyExists extends HttpError { }
 export class NotFoundError extends HttpError { }
-
 
 export class InputError extends HttpError {
     constructor(status, message, formErrors, fieldErrors) {
@@ -51,7 +49,7 @@ export class HttpService {
         const baseUrl = config.serverBaseUrl.replace(/\/$/, "");
         const fullPath = [baseUrl, path.replace(/^\//, ""), queryString].filter(Boolean).join("/");
         const response = await fetch(
-                fullPath,
+            fullPath,
             {
                 method,
                 headers: {

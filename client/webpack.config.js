@@ -4,10 +4,7 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const isProduction = process.env.NODE_ENV == 'production';
 
-
- const stylesHandler = MiniCssExtractPlugin.loader;
-
-
+const stylesHandler = MiniCssExtractPlugin.loader;
 
 const config = {
     entry: './src/index.js',
@@ -22,14 +19,9 @@ const config = {
         port: 3000,
     },
     plugins: [
-         new HtmlWebpackPlugin({
-             template: 'index.html',
-         }),
-
-        // new MiniCssExtractPlugin(),
-
-        // Add your plugins here
-        // Learn more about plugins from https://webpack.js.org/configuration/plugins/
+        new HtmlWebpackPlugin({
+            template: 'index.html',
+        }),
     ],
     devtool: 'source-map',
     module: {
@@ -41,24 +33,21 @@ const config = {
                 }
             },
             {
-                 test: /\.(js|jsx)$/i,
-                 loader: 'babel-loader',
+                test: /\.(js|jsx)$/i,
+                loader: 'babel-loader',
             },
             {
                 test: /\.css$/i,
-                 use: [stylesHandler, 'css-loader'],
-             },
+                use: [stylesHandler, 'css-loader'],
+            },
             {
-                 test: /\.s[ac]ss$/i,
+                test: /\.s[ac]ss$/i,
                 use: [stylesHandler, 'css-loader', 'sass-loader'],
             },
             {
                 test: /\.(eot|svg|ttf|woff|woff2|png|jpg|gif)$/i,
                 type: 'asset',
             },
-
-            // Add your rules for custom modules here
-            // Learn more about loaders from https://webpack.js.org/loaders/
         ],
     },
 };
