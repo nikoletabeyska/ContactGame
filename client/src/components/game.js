@@ -316,8 +316,6 @@ export class Game extends LitElement {
                         <p class="text-center">Moving to the next question...</p>
                     </div>
                 ` : ''}
-                ${this.getContacts && this.player === 'lead' ? this.getGameContacts() : ''}
-                ${this.revealLetter && this.player === 'lead' ? this.revealGameLetter() : ''}
                 ${Object.keys(this.leadAnswer).length !== 0 && !this.leadAnswer.correct ? html`
                     ${this.contacts.length !== 0 ? html`
                         <div class="successful-contacts-box">
