@@ -1,5 +1,22 @@
-import jwtDecode from "jwt-decode"
-import { LocalStorage } from "../lib/LocalStorage"
+import { jwtDecode } from 'jwt-decode';
+//import { LocalStorage } from "../lib/LocalStorage";
+class LocalStorage {
+    constructor(key) {
+      this.key = key;
+    }
+  
+    get() {
+      return localStorage.getItem(this.key);
+    }
+  
+    set(value) {
+      localStorage.setItem(this.key, value);
+    }
+  
+    clear() {
+      localStorage.removeItem(this.key);
+    }
+  }
 
 class UserInfoStorage {
     handler = undefined

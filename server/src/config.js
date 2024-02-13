@@ -13,7 +13,7 @@ const config = convict({
         password: {
             doc: "DB password",
             env: "DB_PASS",
-            default: "postgres"
+            default: "12345678"
         },
         host: {
             env: "DB_HOST",
@@ -22,7 +22,7 @@ const config = convict({
         port: {
             env: "DB_PORT",
             format: "port",
-            default: 1234
+            default: 5433
         },
         database: {
             doc: "DB name",
