@@ -1,9 +1,13 @@
 import { render, html, nothing } from "lit-html";
 import { authService } from '../services/auth'
 import { Router } from "@vaadin/router";
-import { LoginInputSchema } from "../services/validationSchemas";
 import { z } from "zod";
 export class InvalidCredentialsError extends Error { }
+
+const LoginInputSchema = z.object({
+  email: z.string().email("Email must be valid!"),
+  password: z.string().min(8, { message: "Password must be at least 8 symbols!" })
+})
 
 export class Login extends HTMLElement {
   static selector = "app-login";
@@ -26,23 +30,22 @@ export class Login extends HTMLElement {
       return acc;
     }, {});
     this.errors = "";
-    try{
-        LoginInputSchema.parse(data);
-        await authService.login(data.email, data.password);
-        Router.go('/home');
+    try {
+      LoginInputSchema.parse(data);
+      await authService.login(data.email, data.password);
+      Router.go('/home');
     } catch (error) {
       if (error instanceof z.ZodError) {
         error.errors.forEach(err => {
           console.error(err.message);
         });
         this.errors = error.errors.map((err) => err.message).join('\n');
-       
+
       } else {
         this.errors = error.message;
       }
 
       this.render();
-
     }
   }
 
@@ -60,8 +63,6 @@ export class Login extends HTMLElement {
         </div>
         <button>Login</button>
          ${this.errors === "" ? nothing : html`<div class="errors">${this.errors}</div>`}
-
-
       </form>
     `;
   }

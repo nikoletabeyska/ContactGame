@@ -4,96 +4,95 @@ import { sessionUserStorage } from "../services/session";
 import { GameService, socket } from "../services/game.js";
 
 export class Home extends HTMLElement {
-    static selector = "app-home";
-    #shadowRoot = null;
-   
-  
-    constructor() {
-      super();
-      this.#shadowRoot = this.attachShadow({ mode: "closed" });
-      document.addEventListener('registrationSuccess', (event) => {
-        this.message = event.detail.message;
-      });
-      
-      this.isLinkCopied = false;
-      this.showJoin = false;
-      this.userState = 'none';
-      this.socket = socket;
-      this.gameService = new GameService();
-      this.gameService.connect();
-    }
-  
-    connectedCallback() {
-      this.render();
-      socket.on('playerJoined', (playerName) => {
-        this.updateJoinedPlayers(playerName);
-      });
+  static selector = "app-home";
+  #shadowRoot = null;
 
-      socket.on('gameStarted', () => {
-        Router.go('/game'); 
+  constructor() {
+    super();
+    this.#shadowRoot = this.attachShadow({ mode: "closed" });
+    document.addEventListener('registrationSuccess', (event) => {
+      this.message = event.detail.message;
+    });
+
+    this.isLinkCopied = false;
+    this.showJoin = false;
+    this.userState = 'none';
+    this.socket = socket;
+    this.gameService = new GameService();
+    this.gameService.connect();
+  }
+
+  connectedCallback() {
+    this.render();
+    socket.on('playerJoined', (playerName) => {
+      this.updateJoinedPlayers(playerName);
+    });
+
+    socket.on('gameStarted', () => {
+      Router.go('/game');
+    });
+  }
+
+  createGameHandler = () => {
+    this.gameService.createGame(sessionUserStorage.userInfo, sessionUserStorage.name, (gameInfo) => {
+      this.userState = 'owner';
+      this.gameInfo = gameInfo;
+      this.render();
+    });
+  }
+
+  copyLinkHandler = () => {
+    if (!navigator.clipboard) {
+      alert('Copying to clipboard is not supported in this browser.');
+      return;
+    }
+
+    navigator.clipboard.writeText(this.gameInfo.gameLink)
+      .then(() => {
+        this.isLinkCopied = true;
+        this.render();
+        setTimeout(() => {
+          this.isLinkCopied = false;
+          this.render();
+        }, 2000);
+      })
+      .catch((error) => {
+        console.error('Failed to copy link: ', error);
+        alert('Failed to copy link. Please try again.');
       });
   }
 
-    createGameHandler = () => {
-        this.gameService.createGame(sessionUserStorage.id, sessionUserStorage.name, (gameInfo) => {
-        this.userState = 'owner';
-        this.gameInfo = gameInfo;
-        this.render();
-      }); 
-    }
-
-    copyLinkHandler = () => {
-      if (!navigator.clipboard) {
-        alert('Copying to clipboard is not supported in this browser.');
-        return;
-      }
-
-      navigator.clipboard.writeText(this.gameInfo.gameLink)
-        .then(() => {
-          this.isLinkCopied = true;
-          this.render();
-          setTimeout(() => {
-              this.isLinkCopied = false;
-              this.render();
-          }, 2000);
-        })
-        .catch((error) => {
-            console.error('Failed to copy link: ', error);
-            alert('Failed to copy link. Please try again.');
-        });
-    }
-
-    handleJoinRoom = (event) => {
-      event.preventDefault();
-      let linkInput = this.#shadowRoot.getElementById('linkInput');
-      let link = linkInput.value;
-      this.gameService.joinGame(link, sessionUserStorage.name, (gameInfo) => {
-        this.userState = 'joined';
-        this.gameInfo = gameInfo;
-        this.showJoin = false;
-        this.render();
-      });
-   }
-
-    toggleJoin = () => {
-      this.showJoin = !this.showJoin;
-      this.render(); 
-    }
-
-    updateJoinedPlayers = (playerName) => {
-      this.gameInfo.players.push(playerName);
+  handleJoinRoom = (event) => {
+    event.preventDefault();
+    let linkInput = this.#shadowRoot.getElementById('linkInput');
+    let link = linkInput.value;
+    this.gameService.joinGame(link, sessionUserStorage.name, (gameInfo) => {
+      this.userState = 'joined';
+      this.gameInfo = gameInfo;
+      this.showJoin = false;
       this.render();
-    }
+    });
+  }
 
-    togglePlayerList = () => {
-      this.showPlayerList = !this.showPlayerList;
-    }
+  toggleJoin = () => {
+    this.showJoin = !this.showJoin;
+    this.render();
+  }
 
-    startGameHandler = () => {
-      socket.emit('startGame', this.gameInfo.gameId);
-    }
+  updateJoinedPlayers = (playerName) => {
+    this.gameInfo.players.push(playerName);
+    this.render();
+  }
 
-    static styles = `
+  togglePlayerList = () => {
+    this.showPlayerList = !this.showPlayerList;
+  }
+
+  startGameHandler = () => {
+    socket.emit('startGame', this.gameInfo.gameId);
+  }
+
+  static styles = `
         .game-info {
             border: 2px solid black;
             padding: 10px;
@@ -117,9 +116,8 @@ export class Home extends HTMLElement {
             display: block;
         }
     `;
-    getTemplate() {
-      console.log(this.showJoin);
-      return html`
+  getTemplate() {
+    return html`
       <style>
         ${Home.styles}
         </style>
@@ -157,10 +155,10 @@ export class Home extends HTMLElement {
           ` : ''}
       `;
   }
-  
-    render() {
-      render(this.getTemplate(this), this.#shadowRoot);
-    }
+
+  render() {
+    render(this.getTemplate(this), this.#shadowRoot);
   }
-  
-  customElements.define(Home.selector, Home);
+}
+
+customElements.define(Home.selector, Home);

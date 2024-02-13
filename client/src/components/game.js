@@ -27,7 +27,7 @@ export class Game extends LitElement {
 
     constructor() {
         super();
-        this.playerRole = null; 
+        this.playerRole = null;
         this.gameWord = "";
         this.gameId = null;
         this.leadPlayerName = "";

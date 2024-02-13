@@ -1,3 +1,5 @@
+import { jwtDecode } from "jwt-decode"
+
 class SessionStorage {
     constructor(key) {
         this.key = key;
@@ -21,7 +23,7 @@ class UserInfoStorage {
     tokenStorage = new SessionStorage("token")
     nameStorage = new SessionStorage("name")
     gameStorage = new SessionStorage("game")
-    idStorage = new SessionStorage("id")
+    // idStorage = new SessionStorage("id")
 
     setHandler(handler) {
         this.handler = handler
@@ -36,16 +38,16 @@ class UserInfoStorage {
     }
 
     get game() {
-        return this.gameStorage.get()   
+        return this.gameStorage.get()
     }
-    get id() {
-        return this.idStorage.get()   
-    }
+    // get id() {
+    //     return this.idStorage.get()
+    // }
 
     save(token, name, id) {
         this.tokenStorage.set(token)
         this.nameStorage.set(name)
-        this.idStorage.set(id)
+        // this.idStorage.set(id)
         this.handler?.(this.userInfo)
     }
 

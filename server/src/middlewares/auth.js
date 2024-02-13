@@ -15,8 +15,6 @@ export async function authMiddleware(request, response, next) {
 
         const token = authHeader.replace("Bearer ", "")
 
-        console.log({ token })
-
         let userInfo
 
         try {

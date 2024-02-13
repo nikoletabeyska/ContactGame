@@ -9,17 +9,15 @@ const navigateToRegister = () => {
     Router.go('/auth/register');
 }
 
-
 export class Access extends HTMLElement {
     static selector = 'app-access'
     #shadowRoot = null;
 
     constructor() {
         super();
-        this.#shadowRoot = this.attachShadow({ mode: 'closed'});
+        this.#shadowRoot = this.attachShadow({ mode: 'closed' });
         this.render();
     }
-
 
     getTemplate() {
         return html`
@@ -30,12 +28,9 @@ export class Access extends HTMLElement {
         </div>`;
     }
 
-   ;
-    
     render() {
         render(this.getTemplate(this), this.#shadowRoot);
     }
-
 }
 
 customElements.define(Access.selector, Access)

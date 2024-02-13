@@ -1,10 +1,28 @@
 import { render, html, nothing } from "lit-html";
 import { authService } from '../services/auth'
 import { Router } from "@vaadin/router";
-import { RegistrationInputSchema } from "../services/validationSchemas";
-import { isValidationErrorLike, fromZodError } from 'zod-validation-error';
 import { z } from "zod";
 export class InvalidCredentialsError extends Error { }
+
+const RegistrationInputSchema = z.object({
+  name: z
+    .string()
+    .min(2, "Name should have at least 2 alphabets")
+    .refine(
+      value => /^[a-zA-Z]+[-'s]?[a-zA-Z ]+$/.test(value),
+      "Name should contain only alphabets!"
+    )
+    .refine(
+      value => /^[a-zA-Z]+\s+[a-zA-Z]+$/.test(value),
+      "Please enter both first name and last name!"
+    ),
+
+  email: z
+    .string()
+    .min(5)
+    .email("Email must be valid!"),
+  password: z.string().min(8, { message: "Password must be at least 8 symbols!" })
+})
 
 export class Register extends HTMLElement {
   static selector = "app-register";
@@ -32,7 +50,6 @@ export class Register extends HTMLElement {
     try {
       RegistrationInputSchema.parse(data);
       await authService.register(data);
-      console.log("succes");
       const successEvent = new CustomEvent('registrationSuccess', { detail: { message: 'Registration successful!' } });
       document.dispatchEvent(successEvent);
       Router.go('/home');
@@ -44,13 +61,12 @@ export class Register extends HTMLElement {
           console.error(err.message);
         });
         this.errors = error.errors.map((err) => err.message).join('\n');
-       
+
       } else {
         this.errors = error.message;
       }
 
       this.render();
-
     }
   }
 

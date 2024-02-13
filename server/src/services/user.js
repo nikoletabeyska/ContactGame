@@ -55,7 +55,6 @@ export class UserService {
                 password: hashPassword
             })
         } catch (err) {
-            console.log(err);
             if (
                 err instanceof UniqueViolationError &&
                 err.constraint === "users_email_unique"
@@ -68,7 +67,7 @@ export class UserService {
 
     async login(email, password) {
         const user = await UserModel.query().findOne({ email })
-       
+
         if (!user) {
             throw new NotFoundError("There is no user with this email!")
         }
