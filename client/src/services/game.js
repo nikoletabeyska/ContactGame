@@ -28,12 +28,10 @@ export class GameService {
     }
 
     createGame(userId, userName, callback) {
-        let link = "";
         socket.emit('createGame', userId, userName);
         socket.on('gameCreated', (gameInfo) => {
-           callback(gameInfo);
+             callback(gameInfo);
         })
-
     }
 
     joinGame(link, playerName, callback) {
@@ -53,6 +51,12 @@ export class GameService {
     displayLeaveEvent() {
         socket.on('playerLeft', (playerId) => {
             console.log(`Player ${playerId} left the game room`);
+        });
+    }
+
+    static getQuestion(callback) {
+        socket.on('question', (question) => {
+            callback(question);
         });
     }
 
