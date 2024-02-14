@@ -1,7 +1,6 @@
 import { LitElement, html, css } from 'lit-element';
 import { socket } from "../services/game.js";
 import { sessionUserStorage } from "../services/session";
-import 'bootstrap/dist/css/bootstrap.min.css';
 import { GameStyles } from '../styles/styles.js';
 
 
@@ -16,13 +15,12 @@ export class Game extends LitElement {
         gameId: { type: String },
         hasAskedQuestion: { type: Boolean },
         leadPlayerName: { type: String },
-        leadAnswer  : { type: Object },
-        contacts : { type: Array},
-        realAnswer : { type: String},
-        gameOver : { type: Boolean},
-        getContacts : { type: Boolean},
-        revealLetter : { type: Boolean},
-       // letterRevealed : { type: Boolean}
+        leadAnswer: { type: Object },
+        contacts: { type: Array },
+        realAnswer: { type: String },
+        gameOver: { type: Boolean },
+        getContacts: { type: Boolean },
+        revealLetter: { type: Boolean },
     };
 
     constructor() {
@@ -38,9 +36,6 @@ export class Game extends LitElement {
         this.realAnswer = "";
         this.gameOver = false;
         this.revealLetter = false;
-       // this.letterRevealed = false;
-
-        
     }
 
     connectedCallback() {
@@ -52,7 +47,7 @@ export class Game extends LitElement {
                 this.playerRole = 'player';
             }
             this.leadPlayerName = playerName;
-            this.gameId = gameId; 
+            this.gameId = gameId;
             if (this.playerRole === 'lead') {
                 this.getContacts = false;
                 this.revealLetter = false;
@@ -64,22 +59,17 @@ export class Game extends LitElement {
 
         socket.on('letterReveal', (letter) => {
             console.log(this.revealLetter);
-           if(this.revealLetter === true){
+            if (this.revealLetter === true) {
                 this.gameWord = this.gameWord + letter;
-                //console.log('yes')
-            }    
-           if (this.playerRole === 'lead'){
+            }
+            if (this.playerRole === 'lead') {
                 this.revealLetter = false;
             }
-         
-            //this.requestUpdate();
-           
         });
 
         socket.on('firstLetterReveal', (letter) => {
             this.gameWord = this.gameWord + letter;
         });
-
 
         socket.on('question', (question) => {
             this.currentQuestion = question
@@ -91,66 +81,53 @@ export class Game extends LitElement {
             setTimeout(() => {
                 this.currentQuestion = nextQuestion;
                 this.leadAnswer = {};
-
-            }, 10000)   
+            }, 10000)
         });
-
 
         socket.on('incorrectAnswer', (answerInfo, realAnswer) => {
             this.leadAnswer = answerInfo;
             this.realAnswer = realAnswer;
             //console.log(this.gameId);
             //after the timer ends - ask for contacts
-           // this.getContacts = true;
-            
+            // this.getContacts = true;
         });
 
-      
-
         socket.on('leaderOnlyAnswer', (answerInfo, realAnswer) => {
-            console.log("leaderOnlyAnswer");
             socket.emit('getContacts', this.gameId);
             this.leadAnswer = answerInfo;
             this.realAnswer = realAnswer;
-          
-          
         });
 
         socket.on('leaderOnlyContacts', (contacts) => {
-            console.log("leadeerOnlyContacts"); 
             // this.revealLetter = true;
             // this.update();
             this.revealLetter = true;
             this.revealGameLetter();
             this.contacts = contacts;
-             
+
             setTimeout(() => {
                 this.contacts = [];
                 this.hasAskedQuestion = false;
                 this.currentQuestion = "";
                 this.leadAnswer = {};
                 this.realAnswer = "";
-
-            }, 40000)
+            }, 10000)
         });
 
         socket.on('contacts', (contacts) => {
-           // console.log('second');
             this.contacts = contacts;
-             
+
             setTimeout(() => {
                 this.contacts = [];
                 this.hasAskedQuestion = false;
                 this.currentQuestion = "";
                 this.leadAnswer = {};
                 this.realAnswer = "";
-
-            }, 40000)
-
+            }, 10000)
         });
 
         socket.on('noContacts', (nextQuestion) => {
-            
+
             setTimeout(() => {
                 this.currentQuestion = nextQuestion;
                 this.leadAnswer = {};
@@ -161,20 +138,16 @@ export class Game extends LitElement {
             }, 40000)
         });
 
-
-        socket.on('gameOver' , () => {
+        socket.on('gameOver', () => {
             this.gameOver = true;
         })
-      
-    } 
-
+    }
 
     disconnectedCallback() {
         super.disconnectedCallback();
         socket.on('disconnect');
     }
 
-    
     handleWordSubmission = (event) => {
         event.preventDefault();
         this.gameWord = this.shadowRoot.getElementById('word').value;
@@ -186,7 +159,7 @@ export class Game extends LitElement {
         event.preventDefault();
         const myQuestion = this.shadowRoot.getElementById('question').value;
         const myAnswer = this.shadowRoot.getElementById('answer').value;
-        socket.emit('askQuestion', myQuestion, myAnswer,this.gameId, socket.id, sessionUserStorage.name);
+        socket.emit('askQuestion', myQuestion, myAnswer, this.gameId, socket.id, sessionUserStorage.name);
         this.hasAskedQuestion = true;
     }
 
@@ -200,22 +173,19 @@ export class Game extends LitElement {
 
     handleContactSubmission = (event) => {
         event.preventDefault();
-            const inputElement = this.shadowRoot.getElementById('contact');
-            const contactAnswer = inputElement.value;
-            socket.emit('contact', contactAnswer, this.gameId, sessionUserStorage.name, this.currentQuestion);
-            inputElement.value = '';
-  
+        const inputElement = this.shadowRoot.getElementById('contact');
+        const contactAnswer = inputElement.value;
+        socket.emit('contact', contactAnswer, this.gameId, sessionUserStorage.name, this.currentQuestion);
+        inputElement.value = '';
     }
 
-
-    revealGameLetter = () => {  
+    revealGameLetter = () => {
         socket.emit('revealLetter', this.gameId);
     }
-   
 
     static styles = GameStyles;
-    
-      render() {
+
+    render() {
         return html`
             <div class="container-left">
                 <h2 class="role-text">Your role: ${this.playerRole}</h2>
@@ -245,7 +215,7 @@ export class Game extends LitElement {
                     <p class="word-text" ?hidden=${(this.gameWord === "")}>Word letters: ${this.gameWord.toUpperCase()}</p>
                 </div>
     
-                ${this.playerRole === 'player' && this.gameWord !== ""  ? html`
+                ${this.playerRole === 'player' && this.gameWord !== "" ? html`
                     ${!this.hasAskedQuestion ? html`
                         <div class="question-form-box">
                             <form @submit=${this.handleQuestionSubmission}>
@@ -274,7 +244,7 @@ export class Game extends LitElement {
                 `}
     
                 <!-- everyone can see this question-->
-                ${this.currentQuestion !== ""  ? html`
+                ${this.currentQuestion !== "" ? html`
                     <div class="question-box">
                         <p class="question-text">${this.currentQuestion.playerName} asked: ${this.currentQuestion.question}</p>
                     </div>
@@ -294,7 +264,7 @@ export class Game extends LitElement {
                 ` : ''}
     
                 <!--  this is player ui-->
-                ${this.playerRole === 'player' && this.currentQuestion !== ""  ? html`
+                ${this.playerRole === 'player' && this.currentQuestion !== "" ? html`
                     <div class="contact-box">
                         <form @submit=${this.handleContactSubmission}>
                             <div class="mb-3">
@@ -328,15 +298,10 @@ export class Game extends LitElement {
                             <p class="text-center">No successful contacts. Moving to the next question... </p>
                         </div>`}
                 ` : ''}
-
                 ${this.gameOver ? html`<p class="text-center">No more questions.Game over!</p>` : ''}
             </div>    
         `;
     }
-    
 }
-    
-
-
 
 customElements.define(Game.selector, Game);

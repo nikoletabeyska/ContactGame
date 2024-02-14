@@ -23,7 +23,6 @@ class UserInfoStorage {
     tokenStorage = new SessionStorage("token")
     nameStorage = new SessionStorage("name")
     gameStorage = new SessionStorage("game")
-    // idStorage = new SessionStorage("id")
 
     setHandler(handler) {
         this.handler = handler
@@ -40,14 +39,10 @@ class UserInfoStorage {
     get game() {
         return this.gameStorage.get()
     }
-    // get id() {
-    //     return this.idStorage.get()
-    // }
 
-    save(token, name, id) {
+    save(token, name) {
         this.tokenStorage.set(token)
         this.nameStorage.set(name)
-        // this.idStorage.set(id)
         this.handler?.(this.userInfo)
     }
 

@@ -4,4 +4,3 @@ client/dist
 server/node_modules
 server/.env
 .vscode
-node_modules

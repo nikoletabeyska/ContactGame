@@ -55,10 +55,7 @@ let gameRooms = {};
 io.on('connection', async (socket) => {
     console.log('A user connected', socket.id);
     io.engine.on("connection_error", (err) => {
-        console.log(err.req);
-        console.log(err.code);
-        console.log(err.message);
-        console.log(err.context);
+        console.log(err);
     });
 
     socket.on('createGame', (userId, userName) => {
@@ -87,7 +84,6 @@ io.on('connection', async (socket) => {
             console.log(`Player ${socket.id} joined room ${gameId}`);
             socket.emit('gameInfo', gameRooms[gameId]);
             socket.broadcast.to(gameId).emit('playerJoined', playerName);
-
         } else {
             socket.emit('roomNotFound');
         }
@@ -105,8 +101,6 @@ io.on('connection', async (socket) => {
     })
 
     socket.on('gameWord', (word, gameId) => {
-        console.log('gameId:', gameId);
-        console.log('word:', word);
         if (gameRooms[gameId]) {
             gameRooms[gameId].gameWord = word;
             gameRooms[gameId].letterIndex += 1;
@@ -119,13 +113,12 @@ io.on('connection', async (socket) => {
     socket.on('revealLetter', (gameId) => {
         if (gameRooms[gameId]) {
             const index = gameRooms[gameId].letterIndex;
-            console.log('index:', index, 'word:', gameRooms[gameId].gameWord[index]);
             io.to(gameId).emit('letterReveal', gameRooms[gameId].gameWord[index]);
             if (index === gameRooms[gameId].gameWord.length - 1) {
                 io.to(gameId).emit('gameOver');
             } else {
                 gameRooms[gameId].letterIndex += 1;
-            }  
+            }
         } else {
             console.log('Error: Game does not exist:', gameId);
         }
@@ -135,96 +128,75 @@ io.on('connection', async (socket) => {
         if (gameRooms[gameId]) {
             const game = gameRooms[gameId];
             //should we store socket id here?
-            const currentQuestion = {question, answer, socketId, playerName};
+            const currentQuestion = { question, answer, socketId, playerName };
             gameRooms[gameId].questions.push(currentQuestion);
             if (gameRooms[gameId].players.length - 1 === game.questions.length) {
                 //not sending question answer 
                 const questions = game.questions;
-                //console.log(questions);
-                //onsole.log(currentQuestion);
-                io.to(gameId).emit('question', {question: questions[0].question, playerName: questions[0].playerName});
-                     
+                io.to(gameId).emit('question', { question: questions[0].question, playerName: questions[0].playerName });
             }
-
         } else {
             console.log('Error: Game does not exist:', gameId);
         }
     })
 
-
-
     socket.on('leadAnswerToQuestion', (answer, gameId) => {
-        if(gameRooms[gameId]) {
+        if (gameRooms[gameId]) {
             const currentQuestion = gameRooms[gameId].questions[0];
-            console.log(3,currentQuestion.answer.toUpperCase(), answer.toUpperCase());
             if (currentQuestion.answer.toUpperCase() === answer.toUpperCase()) {
                 gameRooms[gameId].questions.shift();
                 if (gameRooms[gameId].questions.length === 0) {
-                    io.to(gameId).emit('gameOver');
+                    io.to(gameId).emit('askQuestion');
                 } else {
-                    io.to(gameId).emit('correctAnswer', {answer, correct: true}, {question: gameRooms[gameId].questions[0].question, playerName:  gameRooms[gameId].questions[0].playerName});
+                    io.to(gameId).emit('correctAnswer', { answer, correct: true }, { question: gameRooms[gameId].questions[0].question, playerName: gameRooms[gameId].questions[0].playerName });
                 }
             } else {
-                console.log('incorrect answer');
-               socket.to(gameId).emit('incorrectAnswer', {answer, correct: false}, currentQuestion.answer);
-               //io.to(socket.id).emit('leaderOnlyAnswer');
-               socket.emit('leaderOnlyAnswer', {answer, correct: false}, currentQuestion.answer);
+                socket.to(gameId).emit('incorrectAnswer', { answer, correct: false }, currentQuestion.answer);
+                //io.to(socket.id).emit('leaderOnlyAnswer');
+                socket.emit('leaderOnlyAnswer', { answer, correct: false }, currentQuestion.answer);
             }
         } else {
             console.log('Error: Game does not exist:', gameId);
         }
-        
     })
 
-
     socket.on('contact', (contactAnswer, gameId, playerName, question) => {
-        console.log(4,contactAnswer, gameId, playerName, question);
-        if(gameRooms[gameId]) {
-            console.log(1, contactAnswer.toUpperCase());
-            console.log(2, gameRooms[gameId].questions[0].answer.toUpperCase());
+        console.log(4, contactAnswer, gameId, playerName, question);
+        if (gameRooms[gameId]) {
             if (contactAnswer.toUpperCase() === gameRooms[gameId].questions[0].answer.toUpperCase()) {
                 const contacts = gameRooms[gameId].contacts;
-                contacts.push(playerName);                
-            }        
+                contacts.push(playerName);
+            }
         } else {
             console.log('Error: Game does not exist:', gameId);
         }
-
     })
 
     socket.on('getContacts', (gameId) => {
-        if(gameRooms[gameId]) {
+        if (gameRooms[gameId]) {
             if (gameRooms[gameId].contacts.length === 0) {
                 if (gameRooms[gameId].questions.length > 0) {
                     const nextQuestion = gameRooms[gameId].questions.shift();
-                    io.to(gameId).emit('noContacts', {question: nextQuestion.question, playerName: nextQuestion.playerName});
+                    io.to(gameId).emit('noContacts', { question: nextQuestion.question, playerName: nextQuestion.playerName });
                 } else {
                     // when is the game over?
                     io.to(gameId).emit('noQuestions');
                 }
-                
-                
             } else {
-                socket.to(gameId).emit('contacts',  gameRooms[gameId].contacts);
-               // io.to(socket.id).emit('leaderOnlyContacts');
-               socket.emit('leaderOnlyContacts',  gameRooms[gameId].contacts);
-
+                socket.to(gameId).emit('contacts', gameRooms[gameId].contacts);
+                // io.to(socket.id).emit('leaderOnlyContacts');
+                socket.emit('leaderOnlyContacts', gameRooms[gameId].contacts);
                 gameRooms[gameId].contacts = [];
                 gameRooms[gameId].questions = [];
             }
-
         } else {
             console.log('Error: Game does not exist:', gameId);
         }
     })
 
-
-   
     socket.on('disconnect', () => {
         console.log(`Client ${socket.id} disconnected`);
         gameRooms = {};
-
-    
         for (const roomId in gameRooms) {
             for (let i = 0; i < players.length; i++) {
                 if (players[i].id === socket.id) {

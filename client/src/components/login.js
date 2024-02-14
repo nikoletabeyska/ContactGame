@@ -44,7 +44,6 @@ export class Login extends HTMLElement {
       } else {
         this.errors = error.message;
       }
-
       this.render();
     }
   }
