@@ -2,6 +2,7 @@ import { render, html, nothing } from "lit-html";
 import { authService } from '../services/auth'
 import { Router } from "@vaadin/router";
 import { z } from "zod";
+import { navigateToLogin } from './utils'
 export class InvalidCredentialsError extends Error { }
 
 const RegistrationInputSchema = z.object({
@@ -87,6 +88,8 @@ export class Register extends HTMLElement {
           <input id="password" type="password" name="password" />
         </div>
         <button>Register</button>
+        <p>You already have an account?</p>
+        <button @click=${navigateToLogin}>Login</button>
         ${this.errors === "" ? nothing : html`<div class="errors">${this.errors}</div>`}
       </form>
     `;
