@@ -20,7 +20,7 @@ export class Game extends LitElement {
         realAnswer: { type: String },
         gameOver: { type: Boolean },
         getContacts: { type: Boolean },
-        revealLetter: { type: Boolean },
+        // revealLetter: { type: Boolean },
     };
 
     constructor() {
@@ -35,12 +35,28 @@ export class Game extends LitElement {
         this.contacts = [];
         this.realAnswer = "";
         this.gameOver = false;
-        this.revealLetter = false;
+        // this.revealLetter = false;
+    }
+
+    printThis(method) {
+        console.log(method, {
+            "playerRole": this.playerRole,
+            "gameWord": this.gameWord,
+            "gameId": this.gameId,
+            "leadPlayerName": this.leadPlayerName,
+            "currentQuestion": this.currentQuestion,
+            "hasAskedQuestion": this.hasAskedQuestion,
+            "leadAnswer": this.leadAnswer,
+            "contacts": this.contacts,
+            "contacts": this.contacts,
+            "contacts": this.contacts
+        })
     }
 
     connectedCallback() {
         super.connectedCallback();
         socket.on('gameLead', (socketId, playerName, gameId) => {
+            printThis('gameLead begin')
             if (socketId === socket.id) {
                 this.playerRole = 'lead';
             } else {
@@ -50,34 +66,48 @@ export class Game extends LitElement {
             this.gameId = gameId;
             if (this.playerRole === 'lead') {
                 this.getContacts = false;
-                this.revealLetter = false;
+                // this.revealLetter = false;
             } else {
                 this.getContacts = true;
-                this.revealLetter = true;
+                // this.revealLetter = true;
             }
+            printThis('gameLead end')
+            // this.revealLetter,
         });
 
         socket.on('letterReveal', (letter) => {
-            console.log(this.revealLetter);
-            if (this.revealLetter === true) {
-                this.gameWord = this.gameWord + letter;
-            }
-            if (this.playerRole === 'lead') {
-                this.revealLetter = false;
-            }
+            printThis('letterReveal begin')
+            this.gameWord = this.gameWord + letter;
+            printThis('letterReveal end')
+            // this.revealLetter = false;
         });
 
-        socket.on('firstLetterReveal', (letter) => {
-            this.gameWord = this.gameWord + letter;
-        });
+        // socket.on('firstLetterReveal', (letter) => {
+        //     console.log('firstLetterReveal', this.playerRole,
+        //         this.gameWord,
+        //         this.gameId,
+        //         this.leadPlayerName,
+        //         this.currentQuestion,
+        //         this.hasAskedQuestion,
+        //         this.leadAnswer,
+        //         this.contacts,
+        //         this.realAnswer,
+        //         this.gameOver)
+        //     this.gameWord = this.gameWord + letter;
+        // });
 
         socket.on('question', (question) => {
+            printThis('question begin')
             this.currentQuestion = question
+            printThis('question end')
         });
 
         socket.on('correctAnswer', (answerInfo, nextQuestion) => {
+            printThis('correctAnswer begin')
             this.leadAnswer = answerInfo;
             // the question should wait
+            printThis('correctAnswer end')
+
             setTimeout(() => {
                 this.currentQuestion = nextQuestion;
                 this.leadAnswer = {};
@@ -85,37 +115,54 @@ export class Game extends LitElement {
         });
 
         socket.on('incorrectAnswer', (answerInfo, realAnswer) => {
+            printThis('incorrectAnswer begin')
             this.leadAnswer = answerInfo;
             this.realAnswer = realAnswer;
+            printThis('incorrectAnswer end')
+            socket.emit('getContacts', this.gameId);
             //console.log(this.gameId);
             //after the timer ends - ask for contacts
             // this.getContacts = true;
         });
 
-        socket.on('leaderOnlyAnswer', (answerInfo, realAnswer) => {
-            socket.emit('getContacts', this.gameId);
-            this.leadAnswer = answerInfo;
-            this.realAnswer = realAnswer;
-        });
+        // socket.on('leaderOnlyAnswer', (answerInfo, realAnswer) => {
+        //     console.log('leaderOnlyAnswer', this.playerRole,
+        //         this.gameWord,
+        //         this.gameId,
+        //         this.leadPlayerName,
+        //         this.currentQuestion,
+        //         this.hasAskedQuestion,
+        //         this.leadAnswer,
+        //         this.contacts,
+        //         this.realAnswer,
+        //         this.gameOver)
+        //     this.leadAnswer = answerInfo;
+        //     this.realAnswer = realAnswer;
+        // });
 
-        socket.on('leaderOnlyContacts', (contacts) => {
-            // this.revealLetter = true;
-            // this.update();
-            this.revealLetter = true;
-            this.revealGameLetter();
-            this.contacts = contacts;
+        // socket.on('leaderOnlyContacts', (contacts) => {
+        //     printThis('leaderOnlyContacts begin')
+        //     // this.revealLetter = true;
+        //     // this.update();
+        //     // this.revealLetter = true;
+        //     this.contacts = contacts;
+        //     printThis('leaderOnlyContacts end')
+        //     socket.emit('revealLetter', this.gameId);
 
-            setTimeout(() => {
-                this.contacts = [];
-                this.hasAskedQuestion = false;
-                this.currentQuestion = "";
-                this.leadAnswer = {};
-                this.realAnswer = "";
-            }, 10000)
-        });
+        //     setTimeout(() => {
+        //         this.contacts = [];
+        //         this.hasAskedQuestion = false;
+        //         this.currentQuestion = "";
+        //         this.leadAnswer = {};
+        //         this.realAnswer = "";
+        //     }, 10000)
+        // });
 
         socket.on('contacts', (contacts) => {
+            printThis('contacts begin')
             this.contacts = contacts;
+            printThis('contacts end')
+
 
             setTimeout(() => {
                 this.contacts = [];
@@ -127,6 +174,7 @@ export class Game extends LitElement {
         });
 
         socket.on('noContacts', (nextQuestion) => {
+            printThis('noContacts begin')
 
             setTimeout(() => {
                 this.currentQuestion = nextQuestion;
@@ -134,12 +182,13 @@ export class Game extends LitElement {
                 this.realAnswer = "";
                 //this.getContacts = false;
                 //this.revealLetter = false;
-
-            }, 40000)
+            }, 10000)
         });
 
         socket.on('gameOver', () => {
+            printThis('gameOver begin')
             this.gameOver = true;
+            printThis('gameOver end')
         })
     }
 
@@ -175,12 +224,8 @@ export class Game extends LitElement {
         event.preventDefault();
         const inputElement = this.shadowRoot.getElementById('contact');
         const contactAnswer = inputElement.value;
-        socket.emit('contact', contactAnswer, this.gameId, sessionUserStorage.name, this.currentQuestion);
+        socket.emit('contact', contactAnswer, this.gameId);
         inputElement.value = '';
-    }
-
-    revealGameLetter = () => {
-        socket.emit('revealLetter', this.gameId);
     }
 
     static styles = GameStyles;
