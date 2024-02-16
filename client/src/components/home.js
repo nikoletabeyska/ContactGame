@@ -35,7 +35,7 @@ export class Home extends HTMLElement {
   }
 
   createGameHandler = () => {
-    this.gameService.createGame(sessionUserStorage.userInfo, sessionUserStorage.name, (gameInfo) => {
+    this.gameService.createGame(sessionUserStorage.name, (gameInfo) => {
       this.userState = 'owner';
       this.gameInfo = gameInfo;
       this.render();

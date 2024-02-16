@@ -9,8 +9,8 @@ export class GameService {
         });
     }
 
-    createGame(tokenInfo, userName, callback) {
-        socket.emit('createGame', tokenInfo.id, userName);
+    createGame(userName, callback) {
+        socket.emit('createGame', userName);
         socket.on('gameCreated', (gameInfo) => {
             callback(gameInfo);
         })

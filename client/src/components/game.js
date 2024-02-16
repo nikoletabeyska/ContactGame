@@ -16,11 +16,8 @@ export class Game extends LitElement {
         hasAskedQuestion: { type: Boolean },
         leadPlayerName: { type: String },
         leadAnswer: { type: Object },
-        contacts: { type: Array },
-        realAnswer: { type: String },
+        thereAreContacts: { type: Boolean },
         gameOver: { type: Boolean },
-        getContacts: { type: Boolean },
-        // revealLetter: { type: Boolean },
     };
 
     constructor() {
@@ -32,10 +29,8 @@ export class Game extends LitElement {
         this.currentQuestion = "";
         this.hasAskedQuestion = false;
         this.leadAnswer = {};
-        this.contacts = [];
-        this.realAnswer = "";
+        this.thereAreContacts = false;
         this.gameOver = false;
-        // this.revealLetter = false;
     }
 
     printThis(method) {
@@ -47,16 +42,15 @@ export class Game extends LitElement {
             "currentQuestion": this.currentQuestion,
             "hasAskedQuestion": this.hasAskedQuestion,
             "leadAnswer": this.leadAnswer,
-            "contacts": this.contacts,
-            "contacts": this.contacts,
-            "contacts": this.contacts
+            "thereAreContacts": this.thereAreContacts,
+            "gameOver": this.gameOver,
         })
     }
 
     connectedCallback() {
         super.connectedCallback();
         socket.on('gameLead', (socketId, playerName, gameId) => {
-            printThis('gameLead begin')
+            this.printThis('gameLead begin')
             if (socketId === socket.id) {
                 this.playerRole = 'lead';
             } else {
@@ -64,131 +58,73 @@ export class Game extends LitElement {
             }
             this.leadPlayerName = playerName;
             this.gameId = gameId;
-            if (this.playerRole === 'lead') {
-                this.getContacts = false;
-                // this.revealLetter = false;
-            } else {
-                this.getContacts = true;
-                // this.revealLetter = true;
-            }
-            printThis('gameLead end')
-            // this.revealLetter,
+            this.printThis('gameLead end')
         });
 
-        socket.on('letterReveal', (letter) => {
-            printThis('letterReveal begin')
-            this.gameWord = this.gameWord + letter;
-            printThis('letterReveal end')
-            // this.revealLetter = false;
+        socket.on('letterReveal', (word) => {
+            this.printThis('letterReveal begin')
+            this.gameWord = word;
+            this.printThis('letterReveal end')
         });
-
-        // socket.on('firstLetterReveal', (letter) => {
-        //     console.log('firstLetterReveal', this.playerRole,
-        //         this.gameWord,
-        //         this.gameId,
-        //         this.leadPlayerName,
-        //         this.currentQuestion,
-        //         this.hasAskedQuestion,
-        //         this.leadAnswer,
-        //         this.contacts,
-        //         this.realAnswer,
-        //         this.gameOver)
-        //     this.gameWord = this.gameWord + letter;
-        // });
 
         socket.on('question', (question) => {
-            printThis('question begin')
+            this.printThis('question begin')
             this.currentQuestion = question
-            printThis('question end')
+            this.printThis('question end')
         });
+
+        socket.on('needQuestions', () => {
+            this.printThis('needQuestions begin')
+            this.hasAskedQuestion = false;
+            this.printThis('needQuestions end')
+        })
 
         socket.on('correctAnswer', (answerInfo, nextQuestion) => {
-            printThis('correctAnswer begin')
-            this.leadAnswer = answerInfo;
-            // the question should wait
-            printThis('correctAnswer end')
+            this.printThis('correctAnswer begin')
+            alert(`The leader answered with "${answerInfo.answer}" which is ${answerInfo.correct}!`)
+            this.printThis('correctAnswer end')
 
-            setTimeout(() => {
-                this.currentQuestion = nextQuestion;
-                this.leadAnswer = {};
-            }, 10000)
+            // setTimeout(() => {
+            this.currentQuestion = nextQuestion;
+            // this.leadAnswer = {};
+            // }, 10000)
         });
 
-        socket.on('incorrectAnswer', (answerInfo, realAnswer) => {
-            printThis('incorrectAnswer begin')
-            this.leadAnswer = answerInfo;
-            this.realAnswer = realAnswer;
-            printThis('incorrectAnswer end')
+        socket.on('incorrectAnswer', (answerInfo) => {
+            this.printThis('incorrectAnswer begin')
+            // this.leadAnswer = answerInfo;
+            alert(`The leader answered with "${answerInfo.answer}" which is ${answerInfo.correct}!`)
+            this.printThis('incorrectAnswer end')
             socket.emit('getContacts', this.gameId);
-            //console.log(this.gameId);
-            //after the timer ends - ask for contacts
-            // this.getContacts = true;
         });
 
-        // socket.on('leaderOnlyAnswer', (answerInfo, realAnswer) => {
-        //     console.log('leaderOnlyAnswer', this.playerRole,
-        //         this.gameWord,
-        //         this.gameId,
-        //         this.leadPlayerName,
-        //         this.currentQuestion,
-        //         this.hasAskedQuestion,
-        //         this.leadAnswer,
-        //         this.contacts,
-        //         this.realAnswer,
-        //         this.gameOver)
-        //     this.leadAnswer = answerInfo;
-        //     this.realAnswer = realAnswer;
-        // });
+        socket.on('showContacts', () => {
+            this.printThis('showContacts begin')
+            // this.thereAreContacts = true;
+            alert("There are successful contacts")
+            this.printThis('showContacts end')
 
-        // socket.on('leaderOnlyContacts', (contacts) => {
-        //     printThis('leaderOnlyContacts begin')
-        //     // this.revealLetter = true;
-        //     // this.update();
-        //     // this.revealLetter = true;
-        //     this.contacts = contacts;
-        //     printThis('leaderOnlyContacts end')
-        //     socket.emit('revealLetter', this.gameId);
-
-        //     setTimeout(() => {
-        //         this.contacts = [];
-        //         this.hasAskedQuestion = false;
-        //         this.currentQuestion = "";
-        //         this.leadAnswer = {};
-        //         this.realAnswer = "";
-        //     }, 10000)
-        // });
-
-        socket.on('contacts', (contacts) => {
-            printThis('contacts begin')
-            this.contacts = contacts;
-            printThis('contacts end')
-
-
-            setTimeout(() => {
-                this.contacts = [];
-                this.hasAskedQuestion = false;
-                this.currentQuestion = "";
-                this.leadAnswer = {};
-                this.realAnswer = "";
-            }, 10000)
+            // setTimeout(() => {
+            // this.thereAreContacts = false;
+            this.hasAskedQuestion = false;
+            this.currentQuestion = "";
+            // this.leadAnswer = {};
+            // }, 10000)
         });
 
         socket.on('noContacts', (nextQuestion) => {
-            printThis('noContacts begin')
-
-            setTimeout(() => {
-                this.currentQuestion = nextQuestion;
-                this.leadAnswer = {};
-                this.realAnswer = "";
-                //this.getContacts = false;
-                //this.revealLetter = false;
-            }, 10000)
+            this.printThis('noContacts begin')
+            alert("No successful contacts. Moving to the next question...")
+            // setTimeout(() => {
+            this.currentQuestion = nextQuestion;
+            // this.leadAnswer = {};
+            // }, 10000)
         });
 
         socket.on('gameOver', () => {
-            printThis('gameOver begin')
+            this.printThis('gameOver begin')
             this.gameOver = true;
-            printThis('gameOver end')
+            this.printThis('gameOver end')
         })
     }
 
@@ -225,7 +161,6 @@ export class Game extends LitElement {
         const inputElement = this.shadowRoot.getElementById('contact');
         const contactAnswer = inputElement.value;
         socket.emit('contact', contactAnswer, this.gameId);
-        inputElement.value = '';
     }
 
     static styles = GameStyles;
@@ -318,30 +253,6 @@ export class Game extends LitElement {
                             <button type="submit" class="btn btn-primary">Contact</button>
                         </form>
                     </div>
-                ` : ''}
-    
-                <!-- everyone can see lead answer and if its correct-->
-                <div class="lead-answer-box" ?hidden=${Object.keys(this.leadAnswer).length === 0}>
-                    <p class="lead-answer-text" ?hidden=${Object.keys(this.leadAnswer).length === 0}>${this.leadPlayerName} answered: It is not "${this.leadAnswer.answer}"! This is ${this.leadAnswer.correct}! :)</p>
-                </div>
-    
-                <!-- result after answer-->
-                ${Object.keys(this.leadAnswer).length !== 0 && this.leadAnswer.correct ? html`
-                    <div class="next-question-box">
-                        <p class="text-center">Moving to the next question...</p>
-                    </div>
-                ` : ''}
-                ${Object.keys(this.leadAnswer).length !== 0 && !this.leadAnswer.correct ? html`
-                    ${this.contacts.length !== 0 ? html`
-                        <div class="successful-contacts-box">
-                            <p class="text-center">There is/are ${this.contacts.length} successful contacts. </p>
-                            ${this.contacts.map(name => html`<p class="name">${name} guessed the word "${this.realAnswer}" right!</p>`)}
-                            <p class="text-center">One letter of the word will be revealed!<p>
-                            <p class="text-center">You should now ask questions again!</p>
-                        </div>` : html`
-                        <div class="no-contacts-box">
-                            <p class="text-center">No successful contacts. Moving to the next question... </p>
-                        </div>`}
                 ` : ''}
                 ${this.gameOver ? html`<p class="text-center">No more questions.Game over!</p>` : ''}
             </div>    
