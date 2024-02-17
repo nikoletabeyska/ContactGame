@@ -1,5 +1,5 @@
 import { LitElement, html, css } from 'lit-element';
-import { socket } from "../services/game.js";
+import { socket, GameService } from "../services/game.js";
 import { sessionUserStorage } from "../services/session";
 import { GameStyles } from '../styles/styles.js';
 
@@ -42,7 +42,15 @@ export class Game extends LitElement {
         this.remainingMinutes = 5;
         this.remainingSeconds = 0;
         this.gameOverBecauseTime = false;
-
+        this.gameService = new GameService();
+        this.gameService.connect();
+        // TODO
+        this.gameService.joinGame(`loca`, sessionUserStorage.name, (gameInfo) => {
+            this.userState = 'joined';
+            this.gameInfo = gameInfo;
+            this.showJoin = false;
+            this.render();
+        });
     }
 
     connectedCallback() {
@@ -148,6 +156,8 @@ export class Game extends LitElement {
         super.disconnectedCallback();
         socket.on('disconnect');
         clearInterval(this.timer);
+        // console.log('4232ewwas')
+        // socket.emit('joinGame', this.gameId, "asdsa");
     }
 
     handleWordSubmission = (event) => {

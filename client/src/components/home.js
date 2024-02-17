@@ -30,8 +30,8 @@ export class Home extends HTMLElement {
       this.updateJoinedPlayers(playerName);
     });
 
-    socket.on('gameStarted', () => {
-      Router.go('/game');
+    socket.on('gameStarted', (gameId) => {
+      Router.go(`/game/${gameId}`);
     });
   }
 
