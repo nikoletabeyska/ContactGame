@@ -101,11 +101,9 @@ io.on('connection', async (socket) => {
     })
 
     socket.on('gameWord', (word, gameId) => {
-        console.log('gameWord start', word);
         if (gameRooms[gameId]) {
             gameRooms[gameId].gameWord = word;
             gameRooms[gameId].letterIndex += 1;
-            console.log('gameWord end', word);
             io.to(gameId).emit('letterReveal', word[0]);
         } else {
             console.log('Error: Game does not exist:', gameId);
@@ -113,7 +111,6 @@ io.on('connection', async (socket) => {
     })
 
     socket.on('revealLetter', (gameId) => {
-        console.log('revealLetter start');
         if (gameRooms[gameId]) {
            letterRevealHandler(gameId);
         } else {
@@ -127,24 +124,19 @@ io.on('connection', async (socket) => {
             io.to(gameId).emit('gameOver', gameRooms[gameId].gameWord);
         } else {
             io.to(gameId).emit('letterReveal', gameRooms[gameId].gameWord[index]);
-            console.log('revealLetter continue');
             gameRooms[gameId].questions = [];
-            gameRooms[gameId].letterIndex += 1;
-            console.log('revealLetter end');
+            gameRooms[gameId].letterIndex += 1;  
         }
     }
 
     socket.on('askQuestion', (question, answer, gameId, socketId, playerName) => {
-        console.log('askQuestion begin');
         if (gameRooms[gameId]) {
             const game = gameRooms[gameId];
-            //should we store socket id here?
             const currentQuestion = { question, answer, socketId, playerName };
             gameRooms[gameId].questions.push(currentQuestion);
             if (gameRooms[gameId].players.length - 1 === game.questions.length) {
                 //not sending question answer 
                 const questionInfo = game.questions[0];
-                console.log('askQuestion end');
                 io.to(gameId).emit('question', { question: questionInfo.question, playerName: questionInfo.playerName });
             }
         } else {
@@ -153,24 +145,19 @@ io.on('connection', async (socket) => {
     })
 
     socket.on('leadAnswerToQuestion', (answer, gameId) => {
-        console.log('leadAnswerToQuestion begin');
         if (gameRooms[gameId]) {
             const currentQuestion = gameRooms[gameId].questions[0];
             if (currentQuestion.answer.toUpperCase() === answer.toUpperCase()) {
                 gameRooms[gameId].questions.shift();
                 // if there are no more questions -> ask questions again
                 if (gameRooms[gameId].questions.length === 0) {
-                    console.log('leadAnswerToQuestion correct and no other questions');
                     io.to(gameId).emit('correctAnswer', answer, null);
                 } else {
-                    console.log('leadAnswerToQuestion correct and have other questions');
                     const nextQuestionInfo = gameRooms[gameId].questions[0];
                     io.to(gameId).emit('correctAnswer', answer, { question: nextQuestionInfo.question, playerName: nextQuestionInfo.playerName });
                 }
             } else {
-                console.log('leadAnswerToQuestion incorrect');
                 gameRooms[gameId].questions.shift();
-
                 io.to(gameId).emit('incorrectAnswer', answer, currentQuestion.answer);
                 getContacts(gameId);
     
@@ -181,12 +168,9 @@ io.on('connection', async (socket) => {
     })
 
     socket.on('contact', (contactAnswer, gameId) => {
-        console.log('contact begin');
         if (gameRooms[gameId]) {
             const contacts = gameRooms[gameId].contacts;
             contacts.push(contactAnswer);
-            console.log('contact end');
-
         } else {
             console.log('Error: Game does not exist:', gameId);
         }
@@ -196,7 +180,6 @@ io.on('connection', async (socket) => {
         if (gameRooms[gameId].questions.length > 0) {
             const nextQuestion = gameRooms[gameId].questions[0];
             io.to(gameId).emit('noContacts', { question: nextQuestion.question, playerName: nextQuestion.playerName });
-            console.log('getContacts no contacts and have other questions');
 
         } else {
             io.to(gameId).emit('noContacts', null);
@@ -204,24 +187,19 @@ io.on('connection', async (socket) => {
     }
 
     function getContacts (gameId) {
-        console.log('getContacts begin');
         if (gameRooms[gameId]) {
             if (gameRooms[gameId].contacts.length === 0) {
-                console.log('getContacts do not have submitted contacts');
                 noContactsHandler(gameId);
             } else {
                 const duplicates = gameRooms[gameId].contacts.filter((item, index) => gameRooms[gameId].contacts.indexOf(item) !== index);
                 if (duplicates.length > 0) {
-                    console.log('getContacts have contacts which are true');
                     io.to(gameId).emit('contacts', duplicates);
                     letterRevealHandler(gameId);
                     gameRooms[gameId].questions = [];
                 } else {
-                    console.log('getContacts have contacts which are  false');
                     noContactsHandler(gameId);
                 }
                 gameRooms[gameId].contacts = [];
-                console.log('getContacts end');
             }
         } else {
             console.log('Error: Game does not exist:', gameId);
@@ -231,15 +209,11 @@ io.on('connection', async (socket) => {
 
     socket.on('disconnect', () => {
         console.log(`Client ${socket.id} disconnected`);
-        gameRooms = {};
         for (const roomId in gameRooms) {
             for (let i = 0; i < players.length; i++) {
                 if (players[i].id === socket.id) {
-                    // Remove the player from the game room
                     players.splice(i, 1);
-                    // Emit event to inform other players about the player leaving
                     io.to(roomId).emit('playerLeft', socket.id);
-                    // If no more players are left in the game room, delete the game room
                     if (players.length === 0) {
                         delete gameRooms[roomId];
                     }

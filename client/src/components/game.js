@@ -42,27 +42,10 @@ export class Game extends LitElement {
 
     }
 
-    printThis = (method) => {
-        console.log(method, {
-            "playerRole": this.playerRole,
-            "gameWord": this.gameWord,
-            "gameId": this.gameId,
-            "leadPlayerName": this.leadPlayerName,
-            "currentQuestion": this.currentQuestion,
-            "hasAskedQuestion": this.hasAskedQuestion,
-            "leadAnswer": this.leadAnswer,
-            "contacts": this.contacts,
-            "contacts": this.contacts,
-            "contacts": this.contacts
-        })
-    }
-
     connectedCallback() {
         super.connectedCallback();
         this.startTimer();
         socket.on('gameLead', (socketId, playerName, gameId) => {
-
-            this.printThis('gameLead begin')
 
             if (socketId === socket.id) {
                 this.playerRole = 'lead';
@@ -73,25 +56,18 @@ export class Game extends LitElement {
             this.leadPlayerName = playerName;
             this.gameId = gameId;
             
-            this.printThis('gameLead end')
         });
-
-    
 
         socket.on('letterReveal', (letter) => {
-            this.printThis('letterReveal begin');
             this.gameWord = this.gameWord + letter;
-            this.printThis('letterReveal end');
-          
+           
         });
+
         socket.on('question', (question) => {
-            this.printThis('question begin');
             this.currentQuestion = question;
-            this.printThis('question end');
         });
 
         socket.on('correctAnswer', (answer, nextQuestion) => {
-            this.printThis('correctAnswer begin', nextQuestion)
             this.leadAnswer.answer = answer;
             this.leadAnswer.correct = true;
             // the question should wait
@@ -107,24 +83,17 @@ export class Game extends LitElement {
                 this.leadAnswer = {answer: null, correct: null};
                 this.realAnswer = "";
                 this.contacts = [];
-                this.printThis('correctAnswer end')
             }, 5000)
         });
 
         socket.on('incorrectAnswer', (answer, realAnswer) => {
-            this.printThis('incorrectAnswer begin')
             this.leadAnswer.answer = answer;
             this.leadAnswer.correct = false;
             this.realAnswer = realAnswer;
-            this.printThis('incorrectAnswer end')
         });
 
         socket.on('contacts', (contacts) => {
-            this.printThis('contacts begin')
             this.contacts = contacts;
-            this.printThis('contacts end')
-
-
             setTimeout(() => {
                 this.contacts = [];
                 this.hasAskedQuestion = false;
@@ -135,8 +104,6 @@ export class Game extends LitElement {
         });
 
         socket.on('noContacts', (nextQuestion) => {
-            this.printThis('noContacts begin')
-
             if (nextQuestion === null) {
                 this.hasNextQuestion = false;
             } else {
@@ -178,7 +145,6 @@ export class Game extends LitElement {
         }, 1000);
     }
 
-    
     disconnectedCallback() {
         super.disconnectedCallback();
         socket.on('disconnect');
