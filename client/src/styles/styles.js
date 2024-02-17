@@ -319,5 +319,146 @@ h1 {
     box-sizing: border-box;
 }
 
+.game-over-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #4a90e2, #b7c8e3)
+    z-index: 999; /* Ensure the background appears behind the container */
+}
+.game-over-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 70px;
+    background-color: #fff;
+    border-radius: 20px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    overflow: hidden; /* Hide any overflowing content */
+    z-index: 1000; /* Ensure the container appears above other content */
+}
 
+
+
+`
+
+
+export const AccessStyles = css`
+html, body {
+    height: 100%;
+    margin: 0;
+}
+.background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #4a90e2, #b7c8e3)
+    z-index: 999; /* Ensure the background appears behind the container */
+}
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 70px;
+    background-color: #fff;
+    border-radius: 20px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    overflow: hidden; /* Hide any overflowing content */
+    z-index: 1000; /* Ensure the container appears above other content */
+}
+h1 {
+    font-size: 32px;
+    color: #007bff;
+    margin-bottom: 20px;
+}
+p {
+    font-size: 20px;
+    color: #6c757d;
+    margin-bottom: 30px;
+}
+.btn {
+    padding: 10px 20px;
+    font-size: 24px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+.btn:hover {
+    background-color: #0056b3;
+}
+`
+
+export const LoginStyles = css`
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 40px;
+    background-color: #fff;
+    border: 2px solid #007bff; /* Add border */
+    border-radius: 20px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    z-index: 1000;
+}
+h1 {
+    font-size: 32px;
+    color: #007bff;
+    margin-bottom: 20px;
+}
+.form-group {
+    margin-bottom: 20px;
+}
+label {
+    font-size: 18px;
+    color: #6c757d;
+}
+input {
+    width: 100%;
+    padding: 10px;
+    font-size: 18px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+button {
+    width: 100%;
+    padding: 15px;
+    font-size: 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+button:hover {
+    background-color: #0056b3;
+}
+.errors {
+    color: red;
+    margin-top: 10px;
+}
 `

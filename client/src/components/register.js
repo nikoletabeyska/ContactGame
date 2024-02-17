@@ -3,6 +3,8 @@ import { authService } from '../services/auth'
 import { Router } from "@vaadin/router";
 import { z } from "zod";
 import { navigateToLogin } from './utils'
+import { LoginStyles } from '../styles/styles.js'
+
 export class InvalidCredentialsError extends Error { }
 
 const RegistrationInputSchema = z.object({
@@ -71,8 +73,14 @@ export class Register extends HTMLElement {
     }
   }
 
+  static styles = LoginStyles;
+
   getTemplate() {
     return html`
+     <style>
+      ${Register.styles}
+    </style>
+    <div class="container">
       <form @submit=${this.submitHandler.bind(this)}>
         <h1>Registration form</h1>
         <div class="form-group">
@@ -92,6 +100,7 @@ export class Register extends HTMLElement {
         <button @click=${navigateToLogin}>Login</button>
         ${this.errors === "" ? nothing : html`<div class="errors">${this.errors}</div>`}
       </form>
+  </div>
     `;
   }
 

@@ -1,5 +1,6 @@
-import { html, render } from 'lit-html';
+import { html, render, css } from 'lit-html';
 import { navigateToLogin } from './utils'
+import { AccessStyles } from '../styles/styles.js'
 
 export class Access extends HTMLElement {
     static selector = 'app-access'
@@ -11,12 +12,18 @@ export class Access extends HTMLElement {
         this.render();
     }
 
+    static styles = AccessStyles;
+
     getTemplate() {
         return html`
-        <div>
+        <style>
+            ${Access.styles}
+        </style>
+         <div class="background"></div>
+        <div class="container">
             <h1>Contact game</h1>
             <p>Please login to access the game.</p>
-            <button @click=${navigateToLogin}>Login</button>
+            <button class="btn btn-primary" @click=${navigateToLogin}>Login</button>
         </div>`;
     }
 

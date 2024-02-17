@@ -6,8 +6,6 @@ import { GameStyles } from '../styles/styles.js';
 
 export class Game extends LitElement {
     static selector = "app-game";
-    static styles = css` `;
-
     static properties = {
         playerRole: { type: String },
         gameWord: { type: String },
@@ -20,7 +18,8 @@ export class Game extends LitElement {
         realAnswer: { type: String },
         gameOver: { type: Boolean },
         getContacts: { type: Boolean },
-        // revealLetter: { type: Boolean },
+        hasNextQuestion: { type: Boolean },
+        gameOverBecauseTime: { type: Boolean },
     };
 
     constructor() {
@@ -31,14 +30,19 @@ export class Game extends LitElement {
         this.leadPlayerName = "";
         this.currentQuestion = "";
         this.hasAskedQuestion = false;
-        this.leadAnswer = {};
+        this.leadAnswer = {answer: null, correct: null};
         this.contacts = [];
         this.realAnswer = "";
         this.gameOver = false;
-        // this.revealLetter = false;
+        this.hasNextQuestion = null;
+        this.elapsedSeconds = 0;
+        this.remainingMinutes = 5;
+        this.remainingSeconds = 0;
+        this.gameOverBecauseTime = false;
+
     }
 
-    printThis(method) {
+    printThis = (method) => {
         console.log(method, {
             "playerRole": this.playerRole,
             "gameWord": this.gameWord,
@@ -55,146 +59,130 @@ export class Game extends LitElement {
 
     connectedCallback() {
         super.connectedCallback();
+        this.startTimer();
         socket.on('gameLead', (socketId, playerName, gameId) => {
-            printThis('gameLead begin')
+
+            this.printThis('gameLead begin')
+
             if (socketId === socket.id) {
                 this.playerRole = 'lead';
             } else {
                 this.playerRole = 'player';
             }
+
             this.leadPlayerName = playerName;
             this.gameId = gameId;
-            if (this.playerRole === 'lead') {
-                this.getContacts = false;
-                // this.revealLetter = false;
-            } else {
-                this.getContacts = true;
-                // this.revealLetter = true;
-            }
-            printThis('gameLead end')
-            // this.revealLetter,
+            
+            this.printThis('gameLead end')
         });
+
+    
 
         socket.on('letterReveal', (letter) => {
-            printThis('letterReveal begin')
+            this.printThis('letterReveal begin');
             this.gameWord = this.gameWord + letter;
-            printThis('letterReveal end')
-            // this.revealLetter = false;
+            this.printThis('letterReveal end');
+          
         });
-
-        // socket.on('firstLetterReveal', (letter) => {
-        //     console.log('firstLetterReveal', this.playerRole,
-        //         this.gameWord,
-        //         this.gameId,
-        //         this.leadPlayerName,
-        //         this.currentQuestion,
-        //         this.hasAskedQuestion,
-        //         this.leadAnswer,
-        //         this.contacts,
-        //         this.realAnswer,
-        //         this.gameOver)
-        //     this.gameWord = this.gameWord + letter;
-        // });
-
         socket.on('question', (question) => {
-            printThis('question begin')
-            this.currentQuestion = question
-            printThis('question end')
+            this.printThis('question begin');
+            this.currentQuestion = question;
+            this.printThis('question end');
         });
 
-        socket.on('correctAnswer', (answerInfo, nextQuestion) => {
-            printThis('correctAnswer begin')
-            this.leadAnswer = answerInfo;
+        socket.on('correctAnswer', (answer, nextQuestion) => {
+            this.printThis('correctAnswer begin', nextQuestion)
+            this.leadAnswer.answer = answer;
+            this.leadAnswer.correct = true;
             // the question should wait
-            printThis('correctAnswer end')
-
+            if (nextQuestion === null) {
+                this.hasNextQuestion = false;
+            }  else {
+                this.hasNextQuestion = true;
+            }
             setTimeout(() => {
-                this.currentQuestion = nextQuestion;
-                this.leadAnswer = {};
-            }, 10000)
+                this.hasAskedQuestion = this.hasNextQuestion;
+                this.hasNextQuestion = null;
+                this.currentQuestion = ((nextQuestion === null) ? "" : nextQuestion);
+                this.leadAnswer = {answer: null, correct: null};
+                this.realAnswer = "";
+                this.contacts = [];
+                this.printThis('correctAnswer end')
+            }, 5000)
         });
 
-        socket.on('incorrectAnswer', (answerInfo, realAnswer) => {
-            printThis('incorrectAnswer begin')
-            this.leadAnswer = answerInfo;
+        socket.on('incorrectAnswer', (answer, realAnswer) => {
+            this.printThis('incorrectAnswer begin')
+            this.leadAnswer.answer = answer;
+            this.leadAnswer.correct = false;
             this.realAnswer = realAnswer;
-            printThis('incorrectAnswer end')
-            socket.emit('getContacts', this.gameId);
-            //console.log(this.gameId);
-            //after the timer ends - ask for contacts
-            // this.getContacts = true;
+            this.printThis('incorrectAnswer end')
         });
-
-        // socket.on('leaderOnlyAnswer', (answerInfo, realAnswer) => {
-        //     console.log('leaderOnlyAnswer', this.playerRole,
-        //         this.gameWord,
-        //         this.gameId,
-        //         this.leadPlayerName,
-        //         this.currentQuestion,
-        //         this.hasAskedQuestion,
-        //         this.leadAnswer,
-        //         this.contacts,
-        //         this.realAnswer,
-        //         this.gameOver)
-        //     this.leadAnswer = answerInfo;
-        //     this.realAnswer = realAnswer;
-        // });
-
-        // socket.on('leaderOnlyContacts', (contacts) => {
-        //     printThis('leaderOnlyContacts begin')
-        //     // this.revealLetter = true;
-        //     // this.update();
-        //     // this.revealLetter = true;
-        //     this.contacts = contacts;
-        //     printThis('leaderOnlyContacts end')
-        //     socket.emit('revealLetter', this.gameId);
-
-        //     setTimeout(() => {
-        //         this.contacts = [];
-        //         this.hasAskedQuestion = false;
-        //         this.currentQuestion = "";
-        //         this.leadAnswer = {};
-        //         this.realAnswer = "";
-        //     }, 10000)
-        // });
 
         socket.on('contacts', (contacts) => {
-            printThis('contacts begin')
+            this.printThis('contacts begin')
             this.contacts = contacts;
-            printThis('contacts end')
+            this.printThis('contacts end')
 
 
             setTimeout(() => {
                 this.contacts = [];
                 this.hasAskedQuestion = false;
                 this.currentQuestion = "";
-                this.leadAnswer = {};
+                this.leadAnswer = {answer: null, correct: null};
                 this.realAnswer = "";
-            }, 10000)
+            }, 8000)
         });
 
         socket.on('noContacts', (nextQuestion) => {
-            printThis('noContacts begin')
+            this.printThis('noContacts begin')
+
+            if (nextQuestion === null) {
+                this.hasNextQuestion = false;
+            } else {
+                this.hasNextQuestion = true;
+            }
 
             setTimeout(() => {
-                this.currentQuestion = nextQuestion;
-                this.leadAnswer = {};
+                this.hasAskedQuestion = this.hasNextQuestion;
+                this.hasNextQuestion = null;
+                this.currentQuestion = (nextQuestion === null ? "" : nextQuestion);                
                 this.realAnswer = "";
-                //this.getContacts = false;
-                //this.revealLetter = false;
-            }, 10000)
+                this.leadAnswer = {answer: null, correct: null};
+                this.printThis('noContacts end')
+                this.contacts = [];
+            }, 5000)
         });
 
-        socket.on('gameOver', () => {
-            printThis('gameOver begin')
+        socket.on('gameOver', (word) => {
+            this.printThis('gameOver begin')
             this.gameOver = true;
-            printThis('gameOver end')
+            this.gameWord = word;
+            this.printThis('gameOver end')
         })
     }
 
+    startTimer() {
+        let durationInSeconds = 300; // 5 minutes
+        this.timer = setInterval(() => {
+            this.remainingMinutes = Math.floor(durationInSeconds / 60);
+            this.remainingSeconds = durationInSeconds % 60;
+            this.requestUpdate(); 
+            if (durationInSeconds <= 0) {
+                clearInterval(this.timer);
+                this.gameOverBecauseTime = true;
+                console.log(this.gameOverBecauseTime);
+            } else {
+                durationInSeconds--;
+            }
+        }, 1000);
+    }
+
+    
     disconnectedCallback() {
         super.disconnectedCallback();
         socket.on('disconnect');
+        clearInterval(this.timer);
     }
 
     handleWordSubmission = (event) => {
@@ -239,6 +227,22 @@ export class Game extends LitElement {
             </div>
             <div class="container">
                 <h1 class="text-center mb-4">Contact Game</h1>
+                <div>Remaining Time: ${this.remainingMinutes} minutes ${this.remainingSeconds} seconds</div>
+
+                ${this.gameOverBecauseTime ? html`
+                <div class="game-over-background"></div>
+                    <div class="game-over-container">
+                        <h1 class="text-center">Game over! Time exceeded!</h1>
+                        <h2 class="text-center">${this.leadPlayerName} won!</h2>
+                        </div>` : ''}
+
+                ${this.gameOver ? html`
+                <div class="game-over-background"></div>
+                    <div class="game-over-container">
+                        <h1 class="text-center">Game over! The word has been guessed correctly!</h1>
+                        <h2 class="text-center">Players won! The word is "${this.gameWord}"</h2>
+                        </div>` : ''}    
+
                 ${this.playerRole === 'lead' && this.gameWord === "" ? html`
                     <div class="box"}>
                         <form @submit=${this.handleWordSubmission}>
@@ -321,31 +325,41 @@ export class Game extends LitElement {
                 ` : ''}
     
                 <!-- everyone can see lead answer and if its correct-->
-                <div class="lead-answer-box" ?hidden=${Object.keys(this.leadAnswer).length === 0}>
-                    <p class="lead-answer-text" ?hidden=${Object.keys(this.leadAnswer).length === 0}>${this.leadPlayerName} answered: It is not "${this.leadAnswer.answer}"! This is ${this.leadAnswer.correct}! :)</p>
-                </div>
+                ${this.leadAnswer.answer !== null ?  html`
+                <div class="lead-answer-box">
+                    <p class="lead-answer-text">${this.leadPlayerName} answered: It is not "${this.leadAnswer.answer}"! This is ${this.leadAnswer.correct}! :)</p>
+                </div>` : ''}
     
                 <!-- result after answer-->
-                ${Object.keys(this.leadAnswer).length !== 0 && this.leadAnswer.correct ? html`
+                ${this.leadAnswer.answer !== null  && this.leadAnswer.correct ? html`
+                    ${this.hasNextQuestion ? html`
                     <div class="next-question-box">
                         <p class="text-center">Moving to the next question...</p>
-                    </div>
+                    </div> `: html `
+                    <div class="next-question-box">
+                        <p class="text-center">No more questions! Players should ask again! ...</p>
+                    </div> `}
                 ` : ''}
-                ${Object.keys(this.leadAnswer).length !== 0 && !this.leadAnswer.correct ? html`
+                
+                ${this.leadAnswer.answer !== null && !this.leadAnswer.correct ? html`
                     ${this.contacts.length !== 0 ? html`
                         <div class="successful-contacts-box">
                             <p class="text-center">There is/are ${this.contacts.length} successful contacts. </p>
-                            ${this.contacts.map(name => html`<p class="name">${name} guessed the word "${this.realAnswer}" right!</p>`)}
+                            ${this.contacts.map(name => html`<p class="name"> Contact with the word "${name}" has been made between players!</p>`)}
                             <p class="text-center">One letter of the word will be revealed!<p>
                             <p class="text-center">You should now ask questions again!</p>
                         </div>` : html`
+                        ${this.hasNextQuestion ? html`
                         <div class="no-contacts-box">
                             <p class="text-center">No successful contacts. Moving to the next question... </p>
-                        </div>`}
-                ` : ''}
-                ${this.gameOver ? html`<p class="text-center">No more questions.Game over!</p>` : ''}
+                        </div>` : html`
+                        <div class="no-contacts-box">
+                        <p class="text-center">No successful contacts! No more questions! Players should ask again! ...</p>
+                        </div> `}
+                    `}
             </div>    
-        `;
+         ` : ''};
+         `
     }
 }
 
