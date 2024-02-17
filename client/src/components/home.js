@@ -3,6 +3,7 @@ import { Router } from "@vaadin/router";
 import { sessionUserStorage } from "../services/session";
 import { GameService, socket } from "../services/game";
 import { authService } from "../services/auth.js";
+import { HomeStyles } from '../styles/styles.js'
 
 export class Home extends HTMLElement {
   static selector = "app-home";
@@ -98,30 +99,8 @@ export class Home extends HTMLElement {
     Router.go('/');
   }
 
-  static styles = `
-        .game-info {
-            border: 2px solid black;
-            padding: 10px;
-            width: 200px;
-            background-color: lightgray;
-            margin-top: 10px;
-        }
+  static styles = HomeStyles;
 
-        .player-count {
-            font-weight: bold;
-            cursor: pointer;
-            text-decoration: underline;
-        }
-
-        .player-list {
-            display: none;
-            margin-top: 5px;
-        }
-
-        .player-list.active {
-            display: block;
-        }
-    `;
   getTemplate() {
     return html`
       <style>
@@ -137,16 +116,15 @@ export class Home extends HTMLElement {
                 <button @click=${this.copyLinkHandler} ?hidden=${!(this.userState === 'owner')}>Copy link</button>
                 ${this.userState === 'owner' ? html`
                     <div>
-                      <!-- <p>Game link: <input id="linkInput" type="text" value="${this.gameInfo.gameLink}" readonly></p><p>Game link: <a href="${this.gameInfo.gameLink}">${this.gameInfo.gameLink}</a></p> -->
                       ${this.isLinkCopied ? html`<p>Link copied</p>` : ''}
                     </div>
                 ` : ''}
                 <p class="player-count" @click=${this.togglePlayerList}>${this.gameInfo.players.length}/${this.gameInfo.maxPlayers} players</p>
-                <div class="player-list ${this.showPlayerList ? 'active' : ''}">
+                <!-- <div class="player-list ${this.showPlayerList ? 'active' : ''}">
                     <ul>
                         ${this.gameInfo.players.map(player => html`<li>${player}</li>`)}
                     </ul>
-                </div>
+                </div> -->
                 ${this.userState === 'owner' ? html`<button @click=${this.startGameHandler}>Start</button>` : ''}
                 ${this.userState === 'joined' ? html`<p>Waiting for owner to start game</p>` : ''}
             </div>

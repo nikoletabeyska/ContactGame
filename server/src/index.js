@@ -210,18 +210,21 @@ io.on('connection', async (socket) => {
     socket.on('disconnect', () => {
         console.log(`Client ${socket.id} disconnected`);
         for (const roomId in gameRooms) {
-            for (let i = 0; i < players.length; i++) {
-                if (players[i].id === socket.id) {
-                    players.splice(i, 1);
-                    io.to(roomId).emit('playerLeft', socket.id);
-                    if (players.length === 0) {
-                        delete gameRooms[roomId];
+            if (gameRooms.hasOwnProperty(roomId)) {
+                const game = gameRooms[roomId];
+                const players = game.players;
+                for (let i = 0; i < players.length; i++) {
+                    if (players[i].id === socket.id) {
+                        players.splice(i, 1);
+                        io.to(roomId).emit('playerLeft', socket.id);
+                        if (players.length === 0) {
+                            delete gameRooms[roomId];
+                        }
+                        break;
                     }
-                    break;
                 }
             }
         }
     });
+
 });
-
-

@@ -116,16 +116,13 @@ export class Game extends LitElement {
                 this.currentQuestion = (nextQuestion === null ? "" : nextQuestion);                
                 this.realAnswer = "";
                 this.leadAnswer = {answer: null, correct: null};
-                this.printThis('noContacts end')
                 this.contacts = [];
             }, 5000)
         });
 
         socket.on('gameOver', (word) => {
-            this.printThis('gameOver begin')
             this.gameOver = true;
             this.gameWord = word;
-            this.printThis('gameOver end')
         })
     }
 
@@ -138,7 +135,6 @@ export class Game extends LitElement {
             if (durationInSeconds <= 0) {
                 clearInterval(this.timer);
                 this.gameOverBecauseTime = true;
-                console.log(this.gameOverBecauseTime);
             } else {
                 durationInSeconds--;
             }

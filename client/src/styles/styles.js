@@ -326,7 +326,7 @@ h1 {
     width: 100%;
     height: 100%;
     background: linear-gradient(135deg, #4a90e2, #b7c8e3)
-    z-index: 999; /* Ensure the background appears behind the container */
+    z-index: 999;
 }
 .game-over-container {
     display: flex;
@@ -341,8 +341,8 @@ h1 {
     background-color: #fff;
     border-radius: 20px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-    overflow: hidden; /* Hide any overflowing content */
-    z-index: 1000; /* Ensure the container appears above other content */
+    overflow: hidden; 
+    z-index: 1000; 
 }
 
 
@@ -377,8 +377,8 @@ html, body {
     background-color: #fff;
     border-radius: 20px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-    overflow: hidden; /* Hide any overflowing content */
-    z-index: 1000; /* Ensure the container appears above other content */
+    overflow: hidden; 
+    z-index: 1000; 
 }
 h1 {
     font-size: 32px;
@@ -417,7 +417,7 @@ export const LoginStyles = css`
     transform: translate(-50%, -50%);
     padding: 40px;
     background-color: #fff;
-    border: 2px solid #007bff; /* Add border */
+    border: 2px solid #007bff; 
     border-radius: 20px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
     overflow: hidden;
@@ -461,4 +461,103 @@ button:hover {
     color: red;
     margin-top: 10px;
 }
+`
+
+export const HomeStyles = css`
+.game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 50px;
+    justify-content: center;
+}
+
+h1 {
+    font-size: 32px;
+    color: #333; 
+    margin-bottom: 20px;
+}
+
+.buttons-container {
+    text-align: center; 
+}
+
+button {
+    margin: 0 auto 10px; 
+    padding: 10px 20px;
+    font-size: 18px;
+    background:  #f9f9f9; 
+    color: #444444;
+    border: 1px solid #cccccc; 
+    border-radius: 5px;
+    Border: 1px solid #cccccc;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease; 
+}
+
+button:hover {
+    background-color:#6d6c6c;
+    color: #fff; 
+}
+
+.create-game-button {
+    background-color:  #4a90e2;
+    color: #fff; 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+}
+
+.create-game-button:hover {
+    background-color: #357dbb; 
+}
+
+.game-info {
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+    width: 300px; /* Set width */
+    margin: 0 auto; 
+    text-align: center; 
+}
+
+.game-info p {
+    font-size: 22px; 
+    color: #333;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.player-count {
+    cursor: pointer;
+    font-size: 22px; 
+}
+
+
+.form-group {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+
+label {
+    display: block;
+    margin-bottom: 10px;
+  }
+  
+  input[type="url"],
+  button {
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+  }
+
+.form-group button[type="submit"]:hover {
+    background-color: #357dbb; /* Darker blue on hover */
+}
+
+
 `
