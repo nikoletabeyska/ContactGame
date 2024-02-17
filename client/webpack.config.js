@@ -19,9 +19,13 @@ const config = {
         port: 3000,
     },
     plugins: [
-        new HtmlWebpackPlugin({
-            template: 'index.html',
-        }),
+         new HtmlWebpackPlugin({
+             template: 'index.html',
+         }),
+
+         new MiniCssExtractPlugin(),
+        // Add your plugins here
+        // Learn more about plugins from https://webpack.js.org/configuration/plugins/
     ],
     devtool: 'source-map',
     module: {

@@ -3,6 +3,7 @@ import { authService } from '../services/auth'
 import { Router } from "@vaadin/router";
 import { z } from "zod";
 import { navigateToRegister } from './utils'
+import { LoginStyles } from '../styles/styles.js'
 export class InvalidCredentialsError extends Error { }
 
 const LoginInputSchema = z.object({
@@ -45,13 +46,17 @@ export class Login extends HTMLElement {
       } else {
         this.errors = error.message;
       }
-
       this.render();
     }
   }
+  static styles = LoginStyles;
 
   getTemplate() {
     return html`
+    <style>
+      ${Login.styles}
+    </style>
+     <div class="container">
       <form @submit=${this.submitHandler.bind(this)}>
         <h1>Login</h1>
         <div class="form-group">
@@ -67,6 +72,7 @@ export class Login extends HTMLElement {
         <button @click=${navigateToRegister}>Register</button>
          ${this.errors === "" ? nothing : html`<div class="errors">${this.errors}</div>`}
       </form>
+      </div>
     `;
   }
 

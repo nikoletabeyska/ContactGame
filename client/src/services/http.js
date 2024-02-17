@@ -42,7 +42,6 @@ export class HttpService {
     }
 
     async request(method, path, { body, query }) {
-        //const authToken = userInfoStorage.token
         const authToken = sessionUserStorage.token
 
         const queryString = new URLSearchParams(query).toString()
@@ -67,7 +66,6 @@ export class HttpService {
 
             if (statusCode === 401) {
                 sessionUserStorage.clear();
-                //userInfoStorage.clear()
                 throw new UnauthorizedError(statusCode, message)
             }
 

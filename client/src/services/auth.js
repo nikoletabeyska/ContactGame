@@ -11,7 +11,7 @@ class AuthService {
             const body = await this.http.post("/auth/login", {
                 body: { email, password }
             })
-            sessionUserStorage.save(body.token, body.name, body.id);
+            sessionUserStorage.save(body.token, body.name);
         } catch (error) {
             console.log(error);
             if (error instanceof HttpError && error.status === 404) {
