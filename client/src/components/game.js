@@ -19,6 +19,9 @@ export class Game extends LitElement {
         gameOver: { type: Boolean },
         getContacts: { type: Boolean },
         hasNextQuestion: { type: Boolean },
+        elapsedSeconds: { type: Number },
+        remainingMinutes: { type: Number },
+        remainingSeconds: { type: Number },
         gameOverBecauseTime: { type: Boolean },
     };
 
@@ -30,7 +33,7 @@ export class Game extends LitElement {
         this.leadPlayerName = "";
         this.currentQuestion = "";
         this.hasAskedQuestion = false;
-        this.leadAnswer = {answer: null, correct: null};
+        this.leadAnswer = { answer: null, correct: null };
         this.contacts = [];
         this.realAnswer = "";
         this.gameOver = false;
@@ -55,12 +58,12 @@ export class Game extends LitElement {
 
             this.leadPlayerName = playerName;
             this.gameId = gameId;
-            
+
         });
 
         socket.on('letterReveal', (letter) => {
             this.gameWord = this.gameWord + letter;
-           
+
         });
 
         socket.on('question', (question) => {
@@ -73,14 +76,14 @@ export class Game extends LitElement {
             // the question should wait
             if (nextQuestion === null) {
                 this.hasNextQuestion = false;
-            }  else {
+            } else {
                 this.hasNextQuestion = true;
             }
             setTimeout(() => {
                 this.hasAskedQuestion = this.hasNextQuestion;
                 this.hasNextQuestion = null;
                 this.currentQuestion = ((nextQuestion === null) ? "" : nextQuestion);
-                this.leadAnswer = {answer: null, correct: null};
+                this.leadAnswer = { answer: null, correct: null };
                 this.realAnswer = "";
                 this.contacts = [];
             }, 5000)
@@ -98,7 +101,7 @@ export class Game extends LitElement {
                 this.contacts = [];
                 this.hasAskedQuestion = false;
                 this.currentQuestion = "";
-                this.leadAnswer = {answer: null, correct: null};
+                this.leadAnswer = { answer: null, correct: null };
                 this.realAnswer = "";
             }, 8000)
         });
@@ -113,9 +116,9 @@ export class Game extends LitElement {
             setTimeout(() => {
                 this.hasAskedQuestion = this.hasNextQuestion;
                 this.hasNextQuestion = null;
-                this.currentQuestion = (nextQuestion === null ? "" : nextQuestion);                
+                this.currentQuestion = (nextQuestion === null ? "" : nextQuestion);
                 this.realAnswer = "";
-                this.leadAnswer = {answer: null, correct: null};
+                this.leadAnswer = { answer: null, correct: null };
                 this.contacts = [];
             }, 5000)
         });
@@ -131,7 +134,7 @@ export class Game extends LitElement {
         this.timer = setInterval(() => {
             this.remainingMinutes = Math.floor(durationInSeconds / 60);
             this.remainingSeconds = durationInSeconds % 60;
-            this.requestUpdate(); 
+            this.requestUpdate();
             if (durationInSeconds <= 0) {
                 clearInterval(this.timer);
                 this.gameOverBecauseTime = true;
@@ -287,17 +290,17 @@ export class Game extends LitElement {
                 ` : ''}
     
                 <!-- everyone can see lead answer and if its correct-->
-                ${this.leadAnswer.answer !== null ?  html`
+                ${this.leadAnswer.answer !== null ? html`
                 <div class="lead-answer-box">
                     <p class="lead-answer-text">${this.leadPlayerName} answered: It is not "${this.leadAnswer.answer}"! This is ${this.leadAnswer.correct}! :)</p>
                 </div>` : ''}
     
                 <!-- result after answer-->
-                ${this.leadAnswer.answer !== null  && this.leadAnswer.correct ? html`
+                ${this.leadAnswer.answer !== null && this.leadAnswer.correct ? html`
                     ${this.hasNextQuestion ? html`
                     <div class="next-question-box">
                         <p class="text-center">Moving to the next question...</p>
-                    </div> `: html `
+                    </div> `: html`
                     <div class="next-question-box">
                         <p class="text-center">No more questions! Players should ask again! ...</p>
                     </div> `}
