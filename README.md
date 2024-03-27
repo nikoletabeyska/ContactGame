@@ -5,7 +5,7 @@ After creating a profile you can create or join game room via link.
 Each game has time limit and limited number of players (at most 8).
 
 Game rules:
-There are two roles in this game - Player role and Lead role.
+- There are two roles in this game - Player role and Lead role.
 The Lead is choosen randomly. He have to choose and write a word.
 After that all of the players are being shown just the first letter of his word.
 PLayers should make gueses about the word and based on them they should submit a question.
