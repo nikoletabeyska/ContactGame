@@ -16,6 +16,7 @@ Game rules:
 
 ## Technologies 
 - Express.js
+- Web Components
 - LitElement/lit-html
 - Socket.IO
 - Vaadin router
