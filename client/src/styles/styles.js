@@ -127,6 +127,8 @@ html, body {
     border-radius: 5px 0 0 5px;
 }
 
+
+
 .btn-primary {
     background-color: #007bff;
     color: white;
@@ -392,7 +394,7 @@ p {
 }
 .btn {
     padding: 10px 20px;
-    font-size: 24px;
+    font-size: 22px;
     background-color: #007bff;
     color: #fff;
     border: none;
@@ -402,6 +404,11 @@ p {
 }
 .btn:hover {
     background-color: #0056b3;
+}
+
+.button-container {
+    display: flex;
+    gap: 10px; 
 }
 `
 
@@ -464,6 +471,35 @@ button:hover {
 `
 
 export const HomeStyles = css`
+.container-big {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 40px;
+    background-color: #fff;
+    border: 2px solid #007bff; 
+    border-radius: 20px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    z-index: 1000;
+}
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+}
+
+.button-container {
+    display: flex;
+    gap: 10px; 
+}
 .game-container {
     display: flex;
     flex-direction: column;
@@ -558,6 +594,14 @@ label {
 .form-group button[type="submit"]:hover {
     background-color: #357dbb; /* Darker blue on hover */
 }
+
+.home-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh; /* Adjust the height as needed */
+  }
 
 
 `

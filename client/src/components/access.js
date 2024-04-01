@@ -1,5 +1,5 @@
 import { html, render, css } from 'lit-html';
-import { navigateToLogin } from './utils'
+import { navigateToLogin, navigateToRegister } from './utils'
 import { AccessStyles } from '../styles/styles.js'
 
 export class Access extends HTMLElement {
@@ -22,8 +22,11 @@ export class Access extends HTMLElement {
          <div class="background"></div>
         <div class="container">
             <h1>Contact game</h1>
-            <p>Please login to access the game.</p>
-            <button class="btn btn-primary" @click=${navigateToLogin}>Login</button>
+            <p>Please login or register to access the game.</p>
+            <div class="button-container">
+                <button class="btn btn-primary" @click=${navigateToLogin}>Login</button>
+                <button class="btn btn-primary" @click=${navigateToRegister}>Register</button>
+            </div>
         </div>`;
     }
 

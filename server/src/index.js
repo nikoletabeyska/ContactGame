@@ -9,7 +9,11 @@ import cors from "cors"
 import { Server } from 'socket.io';
 import { createServer } from 'http';
 import { GameService } from "./services/game.js"
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 const { knex } = pkg;
 const knexClient = knex(knexConfig.development)
 Model.knex(knexClient)
@@ -40,11 +44,18 @@ app.use((req, res, next) => {
     next()
 })
 
+
+app.use(express.static(join(__dirname, '../client/dist/')));
+app.get('*', (req, res) => {
+    console.log("je");
+
+    res.sendFile(join(__dirname, '../../client', 'index.html'));
+});
 app.use(json())
 
 app.use("/auth", authRouter)
 
-app.use("/game", gameRouter)
+//app.use("/game", gameRouter)
 
 httpServer.listen(port, () => {
     console.log(`Server is listening on :${port}`);
@@ -80,6 +91,11 @@ io.on('connection', async (socket) => {
     socket.on('joinGame', (gameId, playerName) => {
         if (gameRooms[gameId]) {
             socket.join(gameId);
+            const isInGame = gameRooms[gameId].players.filter((player) => player.playerName === playerName);
+            if (isInGame.lenght > 0) {
+                isInGame.id = socket.id;
+                console.log('joined again', gameId);
+            }
             gameRooms[gameId].players.push({ playerName, id: socket.id });
             console.log(`Player ${socket.id} joined room ${gameId}`);
             socket.emit('gameInfo', gameRooms[gameId]);
@@ -90,7 +106,7 @@ io.on('connection', async (socket) => {
     });
 
     socket.on('startGame', (gameId) => {
-        io.to(gameId).emit('gameStarted');
+        io.to(gameId).emit('gameStarted', gameId);
 
         const gameRoom = gameRooms[gameId];
         if (gameRoom) {
@@ -205,6 +221,8 @@ io.on('connection', async (socket) => {
             console.log('Error: Game does not exist:', gameId);
         }
     }
+
+    
 
 
     socket.on('disconnect', () => {

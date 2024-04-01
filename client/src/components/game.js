@@ -2,6 +2,7 @@ import { LitElement, html, css } from 'lit-element';
 import { socket, GameService } from "../services/game.js";
 import { sessionUserStorage } from "../services/session";
 import { GameStyles } from '../styles/styles.js';
+import { Router } from "@vaadin/router";
 
 
 export class Game extends LitElement {
@@ -44,17 +45,26 @@ export class Game extends LitElement {
         this.gameOverBecauseTime = false;
         this.gameService = new GameService();
         this.gameService.connect();
+        this.gameService = new GameService();
+        this.gameService.connect();
+       
+        
+        
         // TODO
-        this.gameService.joinGame(`loca`, sessionUserStorage.name, (gameInfo) => {
-            this.userState = 'joined';
-            this.gameInfo = gameInfo;
-            this.showJoin = false;
-            this.render();
-        });
+        //this.gameService.joinGame(window.location.href, sessionUserStorage.name, (gameInfo) => {
+        //socket.emit()
+
+        console.log(window.location.href);
+        
     }
 
     connectedCallback() {
         super.connectedCallback();
+        console.log(window.location.href);
+        const path = window.location.href;
+        const parts = path.split('/');
+        const gameId = parts[parts.length - 1];
+        socket.emit('joinGame',gameId, sessionUserStorage.name);
         this.startTimer();
         socket.on('gameLead', (socketId, playerName, gameId) => {
 
@@ -191,6 +201,11 @@ export class Game extends LitElement {
         inputElement.value = '';
     }
 
+    leaveGameHandler = () => {
+       // socket.emit('playerLeave', this.gameId, this.playerName);
+        Router.go("/home");
+    }
+
     static styles = GameStyles;
 
     render() {
@@ -199,6 +214,7 @@ export class Game extends LitElement {
                 <h2 class="role-text">Your role: ${this.playerRole}</h2>
                 ${this.playerRole === 'player' ? html`
                 <h2 class="role-text">Current lead: ${this.leadPlayerName}</h2>` : ''}
+                <button type="button" class="btn btn-primary" @click=${this.leaveGameHandler}>Leave</button>
             </div>
             <div class="container">
                 <h1 class="text-center mb-4">Contact Game</h1>
@@ -333,7 +349,7 @@ export class Game extends LitElement {
                         </div> `}
                     `}
             </div>    
-         ` : ''};
+         ` : ''}
          `
     }
 }

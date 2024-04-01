@@ -1,15 +1,11 @@
 import { render, html, nothing } from "lit-html";
 import { authService } from '../services/auth'
 import { Router } from "@vaadin/router";
-import { z } from "zod";
 import { navigateToRegister } from './utils'
+import { z } from "zod";
 import { LoginStyles } from '../styles/styles.js'
+import { LoginInputSchema} from "./validationSchemas.js";
 export class InvalidCredentialsError extends Error { }
-
-const LoginInputSchema = z.object({
-  email: z.string().email("Email must be valid!"),
-  password: z.string().min(8, { message: "Password must be at least 8 symbols!" })
-})
 
 export class Login extends HTMLElement {
   static selector = "app-login";

@@ -30,8 +30,8 @@ export class Home extends HTMLElement {
       this.updateJoinedPlayers(playerName);
     });
 
-    socket.on('gameStarted', (gameId) => {
-      Router.go(`/game/${gameId}`);
+    socket.on('gameStarted', () => {
+      Router.go(`/game`);
     });
   }
 
@@ -106,10 +106,13 @@ export class Home extends HTMLElement {
       <style>
         ${Home.styles}
         </style>
+        <div class = "container-big">
         <h1>Welcome ${sessionUserStorage.name}!</h1>
+        <div class="button-container">
           <button @click=${this.createGameHandler}>Create new game</button>
           <button @click=${this.toggleJoin}>Join game</button>
           <button @click=${this.logout}>Log out</button>
+        </div>
           ${this.userState === 'owner' || this.userState === 'joined' ? html`
           <div class="game-info">
                 <p><strong>Game ID:</strong> ${this.gameInfo.gameId}</p>
@@ -138,7 +141,7 @@ export class Home extends HTMLElement {
                   </div>
               </form>
           ` : ''}
-      `;
+  </div>`;
   }
 
   render() {

@@ -34,7 +34,6 @@ class AuthService {
             sessionUserStorage.save(body.token, body.name);
             return body;
         } catch (error) {
-            console.log("oh no", err)
             throw error
         }
     }

@@ -30,6 +30,7 @@ export class GameService {
         });
     }
 
+
     displayLeaveEvent() {
         socket.on('playerLeft', (playerId) => {
             console.log(`Player ${playerId} left the game room`);
